@@ -1,180 +1,95 @@
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+use std::{error::Error, io};
+
 use ratatui::{
-    DefaultTerminal, Frame,
-    buffer::Buffer,
-    layout::Rect,
-    style::Stylize,
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, Paragraph, Widget},
+    Terminal,
+    backend::{Backend, CrosstermBackend},
+    crossterm::{
+        event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+        execute,
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+    },
 };
 
-fn main() -> color_eyre::Result<()> {
-    color_eyre::install()?;
-    let terminal = ratatui::init();
-    let result = App::new().run(terminal);
-    ratatui::restore();
-    result
-}
+mod app;
+mod ui;
+use crate::{
+    app::{App, CurrentScreen, CurrentlyEditing},
+    ui::ui,
+};
 
-/// The main application which holds the state and logic of the application.
-#[derive(Debug, Default)]
-pub struct App {
-    /// Set to `false` to quit the application
-    running: bool,
-    counter: u8,
-}
+fn main() -> Result<(), Box<dyn Error>> {
+    // setup terminal
+    enable_raw_mode()?;
+    let mut stderr = io::stderr(); // This is a special case. Normally using stdout is fine
+    execute!(stderr, EnterAlternateScreen, EnableMouseCapture)?;
+    let backend = CrosstermBackend::new(stderr);
+    let mut terminal = Terminal::new(backend)?;
 
-impl App {
-    pub fn new() -> Self {
-        Self::default()
-    }
+    // create app and run it
+    let mut app = App::new();
+    let res = run_app(&mut terminal, &mut app);
 
-    /// Run the application's main loop.
-    pub fn run(mut self, mut terminal: DefaultTerminal) -> color_eyre::Result<()> {
-        self.running = true;
+    // restore terminal
+    disable_raw_mode()?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )?;
+    terminal.show_cursor()?;
 
-        while self.running {
-            terminal.draw(|frame| self.draw(frame))?;
-            self.handle_crossterm_events()?;
+    if let Ok(do_print) = res {
+        if do_print {
+            app.print_json()?;
         }
-
-        Ok(())
+    } else if let Err(err) = res {
+        println!("{err:?}");
     }
 
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area())
-    }
-
-    /// Reads the crossterm events and updates the state of [`App`].
-    ///
-    /// If your application needs to perform work in between handling events, you can use the
-    /// [`event::poll`] function to check if there are any events available with a timeout.
-    fn handle_crossterm_events(&mut self) -> color_eyre::Result<()> {
-        match event::read()? {
-            // it's important to check KeyEventKind::Press to avoid handling key release events
-            Event::Key(key) if key.kind == KeyEventKind::Press => self.handle_key_event(key),
-            Event::Resize(_, _) => {}
-            _ => {}
-        }
-        Ok(())
-    }
-
-    /// Handles the key events and updates the state of [`App`].
-    fn handle_key_event(&mut self, key: KeyEvent) {
-        match (key.modifiers, key.code) {
-            (_, KeyCode::Esc | KeyCode::Char('q'))
-            | (KeyModifiers::CONTROL, KeyCode::Char('c') | KeyCode::Char('C')) => self.quit(),
-
-            (_, KeyCode::Left) => self.decrement_counter(),
-
-            (_, KeyCode::Right) => self.increment_counter(),
-
-            _ => {}
-        }
-    }
-
-    fn quit(&mut self) {
-        self.running = false;
-    }
-
-    fn decrement_counter(&mut self) {
-        self.counter = self.counter.saturating_sub(1);
-    }
-
-    fn increment_counter(&mut self) {
-        self.counter = self.counter.saturating_add(1);
-    }
+    Ok(())
 }
 
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let title = Line::from(" Counter App Tutorial ".bold());
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<bool> {
+    loop {
+        terminal.draw(|f| ui(f, app))?;
 
-        let instructions = Line::from(vec![
-            " Decrement ".into(),
-            "<Left>".blue().bold(),
-            " Increment ".into(),
-            "<Right>".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-        ]);
+        if let Event::Key(key) = event::read()? {
+            if key.kind == KeyEventKind::Release {
+                // Skip events that are not KeyEventKind::Press
+                continue;
+            }
 
-        let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
+            match app.current_screen {
+                CurrentScreen::Main => match key.code {
+                    KeyCode::Char('e') => app.show_editing_screen(),
+                    KeyCode::Char('q') => app.show_exit_screen(),
+                    _ => {}
+                },
 
-        let counter = Text::from(vec![Line::from(vec![
-            "Value: ".into(),
-            self.counter.to_string().yellow(),
-        ])]);
+                CurrentScreen::Exiting => match key.code {
+                    KeyCode::Char('y') => return Ok(true),
+                    KeyCode::Char('n') | KeyCode::Char('q') => return Ok(false),
+                    _ => {}
+                },
 
-        Paragraph::new(counter)
-            .centered()
-            .block(block)
-            .render(area, buf);
-    }
-}
+                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Enter => {
+                        if let Some(editing) = &app.currently_editing {
+                            match editing {
+                                CurrentlyEditing::Key => app.start_editing_value(),
+                                CurrentlyEditing::Value => app.confirm_pair(),
+                            }
+                        }
+                    }
+                    KeyCode::Esc => app.abort_editing(),
+                    KeyCode::Tab => app.toggle_editing(),
+                    KeyCode::Char(value) => app.type_char(value),
+                    KeyCode::Backspace => app.backspace_content(),
+                    _ => {}
+                },
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use ratatui::style::Style;
-
-    #[test]
-    fn render() {
-        let app = App::new();
-        let mut buf = Buffer::empty(Rect::new(0, 0, 50, 4));
-
-        app.render(buf.area, &mut buf);
-
-        let mut expected = Buffer::with_lines(vec![
-            "┏━━━━━━━━━━━━━ Counter App Tutorial ━━━━━━━━━━━━━┓",
-            "┃                    Value: 0                    ┃",
-            "┃                                                ┃",
-            "┗━ Decrement <Left> Increment <Right> Quit <Q> ━━┛",
-        ]);
-        let title_style = Style::new().bold();
-        let counter_style = Style::new().yellow();
-        let key_style = Style::new().blue().bold();
-        expected.set_style(Rect::new(14, 0, 22, 1), title_style);
-        expected.set_style(Rect::new(28, 1, 1, 1), counter_style);
-        expected.set_style(Rect::new(13, 3, 6, 1), key_style);
-        expected.set_style(Rect::new(30, 3, 7, 1), key_style);
-        expected.set_style(Rect::new(43, 3, 4, 1), key_style);
-
-        assert_eq!(buf, expected);
-    }
-
-    #[test]
-    fn handle_key_event() {
-        let mut app = App::new();
-
-        app.handle_key_event(KeyCode::Right.into());
-        assert_eq!(app.counter, 1);
-
-        app.handle_key_event(KeyCode::Left.into());
-        assert_eq!(app.counter, 0);
-
-        app.handle_key_event(KeyCode::Char('q').into());
-        assert!(!app.running);
-    }
-
-    #[test]
-    fn prevent_underflow() {
-        let mut app = App::new();
-
-        app.handle_key_event(KeyCode::Left.into());
-        assert_eq!(app.counter, 0);
-    }
-
-    #[test]
-    fn prevent_overflow() {
-        let mut app = App::new();
-        app.counter = u8::MAX;
-
-        app.handle_key_event(KeyCode::Right.into());
-        assert_eq!(app.counter, u8::MAX);
+                _ => {}
+            }
+        }
     }
 }

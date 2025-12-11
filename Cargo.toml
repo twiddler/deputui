@@ -6,9 +6,9 @@ description = "lorem ipsum"
 license = "MIT"
 
 [dependencies]
-color-eyre = "0.6.3"
-crossterm = "0.28.1"
 ratatui = "0.29.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
 
 # Read the optimization guideline for more details: https://ratatui.rs/recipes/apps/release-your-app/#optimizations
 [profile.release]
