@@ -1,10 +1,20 @@
-use std::collections::HashMap;
 use ratatui::{
+    crossterm::event::{KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Widget, Wrap},
 };
+use std::collections::HashMap;
+
+pub struct App {
+    pub key_input: String,              // the currently being edited json key.
+    pub value_input: String,            // the currently being edited json value.
+    pub pairs: HashMap<String, String>, // The representation of our key and value pairs with serde Serialize support
+    pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
+    pub currently_editing: Option<CurrentlyEditing>, // the optional state containing which of the key or value pair the user is editing. It is an option, because when the user is not directly editing a key-value pair, this will be set to `None`.
+    pub should_exit: Option<ShouldPrint>, // `Ok(…)` if user wants to exit; … == true iff they want to print the JSON
+}
 
 pub enum CurrentScreen {
     Main,
@@ -17,13 +27,7 @@ pub enum CurrentlyEditing {
     Value,
 }
 
-pub struct App {
-    pub key_input: String,              // the currently being edited json key.
-    pub value_input: String,            // the currently being edited json value.
-    pub pairs: HashMap<String, String>, // The representation of our key and value pairs with serde Serialize support
-    pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
-    pub currently_editing: Option<CurrentlyEditing>, // the optional state containing which of the key or value pair the user is editing. It is an option, because when the user is not directly editing a key-value pair, this will be set to `None`.
-}
+type ShouldPrint = bool;
 
 impl App {
     pub fn new() -> App {
@@ -33,6 +37,43 @@ impl App {
             pairs: HashMap::new(),
             current_screen: CurrentScreen::Main,
             currently_editing: None,
+            should_exit: None,
+        }
+    }
+
+    pub fn handle_key(&mut self, key: KeyEvent) {
+        if key.kind == KeyEventKind::Press {
+            match self.current_screen {
+                CurrentScreen::Main => match key.code {
+                    KeyCode::Char('e') => self.show_editing_screen(),
+                    KeyCode::Char('q') => self.show_exit_screen(),
+                    _ => {}
+                },
+
+                CurrentScreen::Exiting => match key.code {
+                    KeyCode::Char('y') => self.should_exit = Some(true),
+                    KeyCode::Char('n') | KeyCode::Char('q') => self.should_exit = Some(false),
+                    _ => {}
+                },
+
+                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Enter => {
+                        if let Some(editing) = &self.currently_editing {
+                            match editing {
+                                CurrentlyEditing::Key => self.start_editing_value(),
+                                CurrentlyEditing::Value => self.confirm_pair(),
+                            }
+                        }
+                    }
+                    KeyCode::Esc => self.abort_editing(),
+                    KeyCode::Tab => self.toggle_editing(),
+                    KeyCode::Char(value) => self.type_char(value),
+                    KeyCode::Backspace => self.backspace_content(),
+                    _ => {}
+                },
+
+                _ => {}
+            }
         }
     }
 
@@ -140,11 +181,15 @@ impl Widget for &App {
         let current_navigation_text = vec![
             // The first half of the text
             match self.current_screen {
-                CurrentScreen::Main => Span::styled("Normal Mode", Style::default().fg(Color::Green)),
+                CurrentScreen::Main => {
+                    Span::styled("Normal Mode", Style::default().fg(Color::Green))
+                }
                 CurrentScreen::Editing => {
                     Span::styled("Editing Mode", Style::default().fg(Color::Yellow))
                 }
-                CurrentScreen::Exiting => Span::styled("Exiting", Style::default().fg(Color::LightRed)),
+                CurrentScreen::Exiting => {
+                    Span::styled("Exiting", Style::default().fg(Color::LightRed))
+                }
             }
             .to_owned(),
             // A white divider bar to separate the two sections
@@ -156,9 +201,10 @@ impl Widget for &App {
                         CurrentlyEditing::Key => {
                             Span::styled("Editing Json Key", Style::default().fg(Color::Green))
                         }
-                        CurrentlyEditing::Value => {
-                            Span::styled("Editing Json Value", Style::default().fg(Color::LightGreen))
-                        }
+                        CurrentlyEditing::Value => Span::styled(
+                            "Editing Json Value",
+                            Style::default().fg(Color::LightGreen),
+                        ),
                     }
                 } else {
                     Span::styled("Not Editing Anything", Style::default().fg(Color::DarkGray))
@@ -186,8 +232,8 @@ impl Widget for &App {
             }
         };
 
-        let key_notes_footer =
-            Paragraph::new(Line::from(current_keys_hint)).block(Block::default().borders(Borders::ALL));
+        let key_notes_footer = Paragraph::new(Line::from(current_keys_hint))
+            .block(Block::default().borders(Borders::ALL));
 
         let footer_chunks = Layout::default()
             .direction(Direction::Horizontal)

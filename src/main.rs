@@ -1,49 +1,34 @@
-use std::{error::Error, io};
-
 use ratatui::{
     Terminal,
-    backend::{Backend, CrosstermBackend},
-    crossterm::{
-        event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
-        execute,
-        terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
-    },
+    backend::Backend,
+    crossterm::event::{self, Event},
+};
+use std::{
+    error::Error,
+    io::{self},
 };
 
 mod app;
-mod ui;
-use crate::{
-    app::{App, CurrentScreen, CurrentlyEditing},
-    ui::ui,
-};
+mod tui;
+use crate::app::App;
+use crate::tui::{restore_terminal, setup_terminal};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // setup terminal
-    enable_raw_mode()?;
-    let mut stderr = io::stderr(); // This is a special case. Normally using stdout is fine
-    execute!(stderr, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stderr);
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = setup_terminal()?;
 
-    // create app and run it
     let mut app = App::new();
     let res = run_app(&mut terminal, &mut app);
 
-    // restore terminal
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
+    restore_terminal(&mut terminal)?;
 
-    if let Ok(do_print) = res {
-        if do_print {
-            app.print_json()?;
+    match res {
+        Ok(do_print) => {
+            if do_print {
+                app.print_json()?;
+            }
         }
-    } else if let Err(err) = res {
-        println!("{err:?}");
+
+        Err(err) => println!("{err:?}"),
     }
 
     Ok(())
@@ -54,41 +39,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
         terminal.draw(|f| f.render_widget(&*app, f.area()))?;
 
         if let Event::Key(key) = event::read()? {
-            if key.kind == KeyEventKind::Release {
-                // Skip events that are not KeyEventKind::Press
-                continue;
-            }
+            app.handle_key(key);
 
-            match app.current_screen {
-                CurrentScreen::Main => match key.code {
-                    KeyCode::Char('e') => app.show_editing_screen(),
-                    KeyCode::Char('q') => app.show_exit_screen(),
-                    _ => {}
-                },
-
-                CurrentScreen::Exiting => match key.code {
-                    KeyCode::Char('y') => return Ok(true),
-                    KeyCode::Char('n') | KeyCode::Char('q') => return Ok(false),
-                    _ => {}
-                },
-
-                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
-                    KeyCode::Enter => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::Key => app.start_editing_value(),
-                                CurrentlyEditing::Value => app.confirm_pair(),
-                            }
-                        }
-                    }
-                    KeyCode::Esc => app.abort_editing(),
-                    KeyCode::Tab => app.toggle_editing(),
-                    KeyCode::Char(value) => app.type_char(value),
-                    KeyCode::Backspace => app.backspace_content(),
-                    _ => {}
-                },
-
-                _ => {}
+            if let Some(action) = app.should_exit {
+                return Ok(action);
             }
         }
     }
