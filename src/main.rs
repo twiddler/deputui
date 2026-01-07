@@ -22,13 +22,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     restore_terminal(&mut terminal)?;
 
     match res {
-        Ok(do_print) => {
-            if do_print {
-                app.print_json()?;
-            }
-        }
-
-        Err(err) => println!("{err:?}"),
+        Ok(true) => app.print_json()?,
+        Ok(false) => return Err("Not printing; aborting with exit code 1 …".into()),
+        Err(err) => return Err(err.into()),
     }
 
     Ok(())
