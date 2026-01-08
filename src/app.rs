@@ -73,7 +73,6 @@ impl<'a> App<'a> {
                     KeyCode::Char('h') => self.focus_releases(),
                     KeyCode::Char('k') => self.scroll_up(),
                     KeyCode::Char('j') => self.scroll_down(),
-                    KeyCode::Enter => self.should_exit = Some(true),
                     KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
                         self.should_exit = Some(false)
                     }
@@ -142,9 +141,7 @@ fn get_keys_hints(pane: &Pane) -> &'static str {
         Pane::Releases => {
             "down: j | up: k | focus release notes: l | toggle: space | confirm: enter | abort: ctrl+c"
         }
-        Pane::ReleaseNotes => {
-            "down: j | up: k | focus packages: h | confirm: enter | abort: ctrl+c"
-        }
+        Pane::ReleaseNotes => "down: j | up: k | focus packages: h | abort: ctrl+c",
     }
 }
 
