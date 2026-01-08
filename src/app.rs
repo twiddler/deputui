@@ -135,40 +135,54 @@ fn get_style<'a>(active: bool) -> Style {
     }
 }
 
-fn layout(
-    left: List,
-    right: Paragraph,
-    footer: Span,
-    area: Rect,
-    buf: &mut ratatui::buffer::Buffer,
-) {
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Min(1), Constraint::Length(1)])
-        .split(area);
-
-    let main_chunk = chunks[0];
-    let footer_chunk = chunks[1];
-
-    let column_chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Length(40), Constraint::Min(1)])
-        .split(main_chunk);
-
-    let left_column = column_chunks[0];
-    let right_column = column_chunks[1];
-
-    left.render(left_column, buf);
-    right.render(right_column, buf);
-    footer.render(footer_chunk, buf);
+pub struct AppShell<'a> {
+    left: List<'a>,
+    right: Paragraph<'a>,
+    footer: Span<'a>,
 }
 
-fn indicator<'a>(active: bool) -> Span<'a> {
+impl<'a> Widget for AppShell<'a> {
+    fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
+        let area = area.intersection(buf.area);
+        if area.is_empty() {
+            return;
+        }
+
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Min(1), Constraint::Length(1)])
+            .split(area);
+
+        let main_chunk = chunks[0];
+        let footer_chunk = chunks[1];
+
+        let column_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Length(40), Constraint::Min(1)])
+            .split(main_chunk);
+
+        let left_column = column_chunks[0];
+        let right_column = column_chunks[1];
+
+        self.left.render(left_column, buf);
+        self.right.render(right_column, buf);
+        self.footer.render(footer_chunk, buf);
+    }
+}
+
+fn indicator(active: bool) -> Span<'static> {
     Span::styled(">", get_style(active))
 }
 
-fn no_indicator() -> &'static str {
-    " "
+fn no_indicator() -> Span<'static> {
+    Span::raw(" ")
+}
+
+fn create_option<'a>(release: &'a str, indicate: Span<'a>) -> Line<'a> {
+    Line::from(vec![
+        indicate,
+        Span::raw(format!(" [{}] {: <25}", " ", release)),
+    ])
 }
 
 impl Widget for &App<'_> {
@@ -180,18 +194,21 @@ impl Widget for &App<'_> {
                 self.current_screen == CurrentScreen::ReleaseNotes,
             ));
 
-        let mut list_items = Vec::<ListItem>::new();
-
-        for (i, release) in self.releases.iter().enumerate() {
-            list_items.push(ListItem::new(Line::from(vec![
-                if i == self.cursor {
-                    indicator(self.current_screen == CurrentScreen::Releases).into()
+        let list_items: Vec<ListItem> = self
+            .releases
+            .iter()
+            .enumerate()
+            .map(|(i, release)| {
+                let indicator = if i == self.cursor {
+                    indicator(self.current_screen == CurrentScreen::Releases)
                 } else {
-                    no_indicator().into()
-                },
-                format!(" [{}] {: <25}", " ", release).into(),
-            ])));
-        }
+                    no_indicator()
+                };
+
+                create_option(release, indicator)
+            })
+            .map(|o| ListItem::new(o))
+            .collect();
 
         let releases =
             List::new(list_items).block(get_block(self.current_screen == CurrentScreen::Releases));
@@ -201,7 +218,12 @@ impl Widget for &App<'_> {
             Style::default().fg(Color::DarkGray),
         );
 
-        layout(releases, release_notes, keys_hints, area, buf);
+        AppShell {
+            left: releases,
+            right: release_notes,
+            footer: keys_hints,
+        }
+        .render(area, buf);
     }
 }
 
