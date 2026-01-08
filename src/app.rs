@@ -118,9 +118,7 @@ impl<'a> App<'a> {
     }
 
     pub fn scroll_down(&mut self) {
-        let max_line = u16::try_from(self.releases.len()).unwrap();
-
-        self.scroll = cmp::min(max_line, self.scroll.wrapping_add(SCROLL_STEP_SIZE));
+        self.scroll = self.scroll.wrapping_add(SCROLL_STEP_SIZE);
     }
 
     pub fn focus_releases(&mut self) {
