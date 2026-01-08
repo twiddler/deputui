@@ -128,6 +128,7 @@ impl Widget for &App<'_> {
             left: MultiSelectView {
                 multi_select: &self.multiselect,
                 active: self.focused_pane == Pane::Releases,
+                block: get_block(self.focused_pane == Pane::Releases),
             },
             right: release_notes,
             footer: keys_hints,

@@ -4,12 +4,13 @@ use ratatui::{
     layout::Rect,
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, BorderType, Borders, List, ListItem, Widget},
+    widgets::{Block, List, ListItem, Widget},
 };
 
 pub struct MultiSelectView<'a> {
     pub multi_select: &'a MultiSelect,
     pub active: bool,
+    pub block: Block<'a>,
 }
 
 impl Widget for MultiSelectView<'_> {
@@ -36,9 +37,7 @@ impl Widget for MultiSelectView<'_> {
             .map(|o| ListItem::new(o))
             .collect();
 
-        List::new(list_items)
-            .block(get_block(self.active))
-            .render(area, buf);
+        List::new(list_items).block(self.block).render(area, buf);
     }
 }
 
@@ -114,19 +113,4 @@ fn create_option_item<'a>(label: &'a str, selected: bool, indicator: Span<'a>) -
         Span::styled("]", Style::default().fg(Color::DarkGray)),
         Span::raw(format!(" {: <25}", label)),
     ])
-}
-
-fn get_block<'a>(active: bool) -> Block<'a> {
-    Block::default()
-        .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
-        .border_style(get_style(active))
-        .style(Style::default())
-}
-
-fn get_style<'a>(active: bool) -> Style {
-    match active {
-        true => Style::default(),
-        false => Style::default().fg(Color::DarkGray),
-    }
 }
