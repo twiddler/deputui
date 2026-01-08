@@ -6,8 +6,8 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
 
-use crate::app_shell::AppShell;
 use crate::multi_select::MultiSelect;
+use crate::{app_shell::AppShell, multi_select::MultiSelectView};
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
@@ -33,7 +33,7 @@ impl<'a> App<'a> {
 
         App {
             scroll: 0,
-            multiselect: MultiSelect::new(releases, focused_pane == Pane::Releases),
+            multiselect: MultiSelect::new(releases),
             release_notes: "# Level 1\n\
 \n\
             **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
@@ -93,12 +93,10 @@ impl<'a> App<'a> {
 
     pub fn focus_releases(&mut self) {
         self.focused_pane = Pane::Releases;
-        self.multiselect.active = true;
     }
 
     pub fn focus_release_notes(&mut self) {
         self.focused_pane = Pane::ReleaseNotes;
-        self.multiselect.active = false;
     }
 
     pub fn get_selected_releases(&self) -> String {
@@ -127,7 +125,10 @@ impl Widget for &App<'_> {
         .centered();
 
         AppShell {
-            left: &self.multiselect,
+            left: MultiSelectView {
+                multi_select: &self.multiselect,
+                active: self.focused_pane == Pane::Releases,
+            },
             right: release_notes,
             footer: keys_hints,
         }

@@ -7,14 +7,48 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, List, ListItem, Widget},
 };
 
-pub struct MultiSelect {
-    options: Vec<SelectOption>,
-    cursor: usize,
+pub struct MultiSelectView<'a> {
+    pub multi_select: &'a MultiSelect,
     pub active: bool,
 }
 
+impl Widget for MultiSelectView<'_> {
+    fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
+        let area = area.intersection(buf.area);
+        if area.is_empty() {
+            return;
+        }
+
+        let list_items: Vec<ListItem> = self
+            .multi_select
+            .options
+            .iter()
+            .enumerate()
+            .map(|(i, option)| {
+                let indicator = if i == self.multi_select.cursor {
+                    indicator(self.active)
+                } else {
+                    no_indicator()
+                };
+
+                create_option_item(&option.value, option.selected, indicator)
+            })
+            .map(|o| ListItem::new(o))
+            .collect();
+
+        List::new(list_items)
+            .block(get_block(self.active))
+            .render(area, buf);
+    }
+}
+
+pub struct MultiSelect {
+    options: Vec<SelectOption>,
+    cursor: usize,
+}
+
 impl MultiSelect {
-    pub fn new(values: &[&str], active: bool) -> MultiSelect {
+    pub fn new(values: &[&str]) -> MultiSelect {
         MultiSelect {
             options: values
                 .iter()
@@ -24,7 +58,6 @@ impl MultiSelect {
                 })
                 .collect(),
             cursor: 0,
-            active,
         }
     }
 
@@ -48,35 +81,6 @@ impl MultiSelect {
             .filter(|o| o.selected)
             .map(|o| o.value.as_str())
             .collect()
-    }
-}
-
-impl Widget for &MultiSelect {
-    fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
-        let area = area.intersection(buf.area);
-        if area.is_empty() {
-            return;
-        }
-
-        let list_items: Vec<ListItem> = self
-            .options
-            .iter()
-            .enumerate()
-            .map(|(i, option)| {
-                let indicator = if i == self.cursor {
-                    indicator(self.active)
-                } else {
-                    no_indicator()
-                };
-
-                create_option_item(&option.value, option.selected, indicator)
-            })
-            .map(|o| ListItem::new(o))
-            .collect();
-
-        List::new(list_items)
-            .block(get_block(self.active))
-            .render(area, buf);
     }
 }
 
