@@ -6,9 +6,10 @@ description = "lorem ipsum"
 license = "MIT"
 
 [dependencies]
-ratatui = "0.29.0"
+ratatui = "0.30.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
+tui-markdown = "0.3.7"
 
 # Read the optimization guideline for more details: https://ratatui.rs/recipes/apps/release-your-app/#optimizations
 [profile.release]

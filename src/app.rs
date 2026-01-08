@@ -1,42 +1,54 @@
+use std::cmp;
+
 use ratatui::{
-    crossterm::event::{KeyCode, KeyEvent, KeyEventKind},
+    crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    text::{Line, Span, Text},
-    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Widget, Wrap},
+    text::{Line, Span},
+    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Widget},
 };
-use std::collections::HashMap;
 
-pub struct App {
-    pub key_input: String,              // the currently being edited json key.
-    pub value_input: String,            // the currently being edited json value.
-    pub pairs: HashMap<String, String>, // The representation of our key and value pairs with serde Serialize support
+const SCROLL_STEP_SIZE: u16 = 5;
+
+pub struct App<'a> {
+    pub cursor: usize,
+    pub scroll: u16,
+    pub releases: &'a [&'a str],
+    pub release_notes: &'a str,
     pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
-    pub currently_editing: Option<CurrentlyEditing>, // the optional state containing which of the key or value pair the user is editing. It is an option, because when the user is not directly editing a key-value pair, this will be set to `None`.
     pub should_exit: Option<ShouldPrint>, // `Ok(…)` if user wants to exit; … == true iff they want to print the JSON
 }
 
+#[derive(PartialEq)]
 pub enum CurrentScreen {
-    Main,
-    Editing,
-    Exiting,
-}
-
-pub enum CurrentlyEditing {
-    Key,
-    Value,
+    Releases,
+    ReleaseNotes,
 }
 
 type ShouldPrint = bool;
 
-impl App {
-    pub fn new() -> App {
+impl<'a> App<'a> {
+    pub fn new(foo: &'a [&str]) -> App<'a> {
         App {
-            key_input: String::new(),
-            value_input: String::new(),
-            pairs: HashMap::new(),
-            current_screen: CurrentScreen::Main,
-            currently_editing: None,
+            cursor: 0,
+            scroll: 0,
+            releases: foo,
+            release_notes: "# Level 1\n\
+\n\
+            **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
+\n\
+# Level 2\n\
+\n\
+            **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
+\n\
+# Level 3\n\
+\n\
+            **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
+\n\
+            ## Something deeper\n\
+\n\
+            *Lorem ipsum* dolor sit amet, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.",
+            current_screen: CurrentScreen::Releases,
             should_exit: None,
         }
     }
@@ -44,31 +56,29 @@ impl App {
     pub fn handle_key(&mut self, key: KeyEvent) {
         if key.kind == KeyEventKind::Press {
             match self.current_screen {
-                CurrentScreen::Main => match key.code {
-                    KeyCode::Char('e') => self.show_editing_screen(),
-                    KeyCode::Char('q') => self.show_exit_screen(),
-                    _ => {}
-                },
+                CurrentScreen::Releases => match key.code {
+                    KeyCode::Char('l') => self.focus_release_notes(),
 
-                CurrentScreen::Exiting => match key.code {
-                    KeyCode::Char('y') => self.should_exit = Some(true),
-                    KeyCode::Char('n') | KeyCode::Char('q') => self.should_exit = Some(false),
-                    _ => {}
-                },
+                    KeyCode::Char('k') => self.focus_previous_option(),
+                    KeyCode::Char('j') => self.focus_next_option(),
 
-                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
-                    KeyCode::Enter => {
-                        if let Some(editing) = &self.currently_editing {
-                            match editing {
-                                CurrentlyEditing::Key => self.start_editing_value(),
-                                CurrentlyEditing::Value => self.confirm_pair(),
-                            }
-                        }
+                    KeyCode::Enter => self.should_exit = Some(true),
+                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        self.should_exit = Some(false)
                     }
-                    KeyCode::Esc => self.abort_editing(),
-                    KeyCode::Tab => self.toggle_editing(),
-                    KeyCode::Char(value) => self.type_char(value),
-                    KeyCode::Backspace => self.backspace_content(),
+                    _ => {}
+                },
+
+                CurrentScreen::ReleaseNotes if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Char('h') => self.focus_releases(),
+
+                    KeyCode::Char('k') => self.scroll_up(),
+                    KeyCode::Char('j') => self.scroll_down(),
+
+                    KeyCode::Enter => self.should_exit = Some(true),
+                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        self.should_exit = Some(false)
+                    }
                     _ => {}
                 },
 
@@ -77,245 +87,131 @@ impl App {
         }
     }
 
-    pub fn save_key_value(&mut self) {
-        self.pairs
-            .insert(self.key_input.clone(), self.value_input.clone());
-        self.key_input = String::new();
-        self.value_input = String::new();
-        self.currently_editing = None;
+    pub fn focus_previous_option(&mut self) {
+        self.cursor = self.cursor.saturating_sub(1);
     }
 
-    pub fn toggle_editing(&mut self) {
-        match &self.currently_editing {
-            Some(edit_mode) => match edit_mode {
-                CurrentlyEditing::Key => self.currently_editing = Some(CurrentlyEditing::Value),
-                CurrentlyEditing::Value => self.currently_editing = Some(CurrentlyEditing::Key),
-            },
-            _ => self.currently_editing = Some(CurrentlyEditing::Key),
-        };
+    pub fn focus_next_option(&mut self) {
+        let max_cursor = self.releases.len() - 1;
+
+        self.cursor = cmp::min(max_cursor, self.cursor.wrapping_add(1))
     }
 
-    pub fn abort_editing(&mut self) {
-        self.current_screen = CurrentScreen::Main;
-        self.currently_editing = None;
+    pub fn scroll_up(&mut self) {
+        self.scroll = self.scroll.saturating_sub(SCROLL_STEP_SIZE)
     }
 
-    pub fn print_json(&self) -> serde_json::Result<()> {
-        let output = serde_json::to_string(&self.pairs)?;
-        println!("{output}");
-        Ok(())
+    pub fn scroll_down(&mut self) {
+        let max_line = u16::try_from(self.releases.len()).unwrap();
+
+        self.scroll = cmp::min(max_line, self.scroll.wrapping_add(SCROLL_STEP_SIZE));
     }
 
-    pub fn type_char(&mut self, value: char) {
-        if let Some(editing) = &self.currently_editing {
-            match editing {
-                CurrentlyEditing::Key => self.key_input.push(value),
-                CurrentlyEditing::Value => self.value_input.push(value),
-            };
-        }
+    pub fn focus_releases(&mut self) {
+        self.current_screen = CurrentScreen::Releases;
     }
 
-    pub fn backspace_content(&mut self) {
-        if let Some(editing) = &self.currently_editing {
-            match editing {
-                CurrentlyEditing::Key => self.key_input.pop(),
-                CurrentlyEditing::Value => self.value_input.pop(),
-            };
-        };
+    pub fn focus_release_notes(&mut self) {
+        self.current_screen = CurrentScreen::ReleaseNotes;
     }
 
-    pub fn show_editing_screen(&mut self) {
-        self.current_screen = CurrentScreen::Editing;
-        self.currently_editing = Some(CurrentlyEditing::Key);
-    }
-
-    pub fn show_exit_screen(&mut self) {
-        self.current_screen = CurrentScreen::Exiting;
-    }
-
-    pub fn start_editing_value(&mut self) {
-        self.currently_editing = Some(CurrentlyEditing::Value)
-    }
-
-    pub fn confirm_pair(&mut self) {
-        self.save_key_value();
-        self.current_screen = CurrentScreen::Main;
+    pub fn get_selection(&self) -> String {
+        self.releases.join(" ")
     }
 }
 
-impl Widget for &App {
+fn get_block<'a>(active: bool) -> Block<'a> {
+    Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(get_style(active))
+        .style(Style::default())
+}
+
+fn get_style<'a>(active: bool) -> Style {
+    match active {
+        true => Style::default(),
+        false => Style::default().fg(Color::DarkGray),
+    }
+}
+
+fn layout(
+    left: List,
+    right: Paragraph,
+    footer: Span,
+    area: Rect,
+    buf: &mut ratatui::buffer::Buffer,
+) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Min(1), Constraint::Length(1)])
+        .split(area);
+
+    let main_chunk = chunks[0];
+    let footer_chunk = chunks[1];
+
+    let column_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Length(40), Constraint::Min(1)])
+        .split(main_chunk);
+
+    let left_column = column_chunks[0];
+    let right_column = column_chunks[1];
+
+    left.render(left_column, buf);
+    right.render(right_column, buf);
+    footer.render(footer_chunk, buf);
+}
+
+fn indicator<'a>(active: bool) -> Span<'a> {
+    Span::styled(">", get_style(active))
+}
+
+fn no_indicator() -> &'static str {
+    " "
+}
+
+impl Widget for &App<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
-        // Create the layout sections.
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Length(3),
-                Constraint::Min(1),
-                Constraint::Length(3),
-            ])
-            .split(area);
+        let release_notes = Paragraph::new(tui_markdown::from_str(self.release_notes))
+            .wrap(ratatui::widgets::Wrap { trim: true })
+            .scroll((self.scroll, 0))
+            .block(get_block(
+                self.current_screen == CurrentScreen::ReleaseNotes,
+            ));
 
-        let title_block = Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default());
-
-        let title = Paragraph::new(Text::styled(
-            "Create New Json",
-            Style::default().fg(Color::Green),
-        ))
-        .block(title_block);
-
-        title.render(chunks[0], buf);
         let mut list_items = Vec::<ListItem>::new();
 
-        for key in self.pairs.keys() {
-            list_items.push(ListItem::new(Line::from(Span::styled(
-                format!("{: <25} : {}", key, self.pairs.get(key).unwrap()),
-                Style::default().fg(Color::Yellow),
-            ))));
-        }
-
-        let list = List::new(list_items);
-
-        list.render(chunks[1], buf);
-        let current_navigation_text = vec![
-            // The first half of the text
-            match self.current_screen {
-                CurrentScreen::Main => {
-                    Span::styled("Normal Mode", Style::default().fg(Color::Green))
-                }
-                CurrentScreen::Editing => {
-                    Span::styled("Editing Mode", Style::default().fg(Color::Yellow))
-                }
-                CurrentScreen::Exiting => {
-                    Span::styled("Exiting", Style::default().fg(Color::LightRed))
-                }
-            }
-            .to_owned(),
-            // A white divider bar to separate the two sections
-            Span::styled(" | ", Style::default().fg(Color::White)),
-            // The final section of the text, with hints on what the user is editing
-            {
-                if let Some(editing) = &self.currently_editing {
-                    match editing {
-                        CurrentlyEditing::Key => {
-                            Span::styled("Editing Json Key", Style::default().fg(Color::Green))
-                        }
-                        CurrentlyEditing::Value => Span::styled(
-                            "Editing Json Value",
-                            Style::default().fg(Color::LightGreen),
-                        ),
-                    }
+        for (i, release) in self.releases.iter().enumerate() {
+            list_items.push(ListItem::new(Line::from(vec![
+                if i == self.cursor {
+                    indicator(self.current_screen == CurrentScreen::Releases).into()
                 } else {
-                    Span::styled("Not Editing Anything", Style::default().fg(Color::DarkGray))
-                }
-            },
-        ];
-
-        let mode_footer = Paragraph::new(Line::from(current_navigation_text))
-            .block(Block::default().borders(Borders::ALL));
-
-        let current_keys_hint = {
-            match self.current_screen {
-                CurrentScreen::Main => Span::styled(
-                    "(q) to quit / (e) to make new pair",
-                    Style::default().fg(Color::Red),
-                ),
-                CurrentScreen::Editing => Span::styled(
-                    "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
-                    Style::default().fg(Color::Red),
-                ),
-                CurrentScreen::Exiting => Span::styled(
-                    "(q) to quit / (e) to make new pair",
-                    Style::default().fg(Color::Red),
-                ),
-            }
-        };
-
-        let key_notes_footer = Paragraph::new(Line::from(current_keys_hint))
-            .block(Block::default().borders(Borders::ALL));
-
-        let footer_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(chunks[2]);
-
-        mode_footer.render(footer_chunks[0], buf);
-        key_notes_footer.render(footer_chunks[1], buf);
-
-        if let Some(editing) = &self.currently_editing {
-            let popup_block = Block::default()
-                .title("Enter a new key-value pair")
-                .borders(Borders::NONE)
-                .style(Style::default().bg(Color::DarkGray));
-
-            let area = centered_rect(60, 25, area);
-            popup_block.render(area, buf);
-
-            let popup_chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .margin(1)
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-                .split(area);
-
-            let mut key_block = Block::default().title("Key").borders(Borders::ALL);
-            let mut value_block = Block::default().title("Value").borders(Borders::ALL);
-
-            let active_style = Style::default().bg(Color::LightYellow).fg(Color::Black);
-
-            match editing {
-                CurrentlyEditing::Key => key_block = key_block.style(active_style),
-                CurrentlyEditing::Value => value_block = value_block.style(active_style),
-            };
-
-            let key_text = Paragraph::new(self.key_input.clone()).block(key_block);
-            key_text.render(popup_chunks[0], buf);
-
-            let value_text = Paragraph::new(self.value_input.clone()).block(value_block);
-            value_text.render(popup_chunks[1], buf);
+                    no_indicator().into()
+                },
+                format!(" [{}] {: <25}", " ", release).into(),
+            ])));
         }
 
-        if let CurrentScreen::Exiting = self.current_screen {
-            Clear.render(area, buf); //this clears the entire screen and anything already drawn
-            let popup_block = Block::default()
-                .title("Y/N")
-                .borders(Borders::NONE)
-                .style(Style::default().bg(Color::DarkGray));
+        let releases =
+            List::new(list_items).block(get_block(self.current_screen == CurrentScreen::Releases));
 
-            let exit_text = Text::styled(
-                "Would you like to output the buffer as json? (y/n)",
-                Style::default().fg(Color::Red),
-            );
-            // the `trim: false` will stop the text from being cut off when over the edge of the block
-            let exit_paragraph = Paragraph::new(exit_text)
-                .block(popup_block)
-                .wrap(Wrap { trim: false });
+        let keys_hints = Span::styled(
+            get_keys_hints(&self.current_screen),
+            Style::default().fg(Color::DarkGray),
+        );
 
-            let area = centered_rect(60, 25, area);
-            exit_paragraph.render(area, buf);
-        }
+        layout(releases, release_notes, keys_hints, area, buf);
     }
 }
 
-/// helper function to create a centered rect using up certain percentage of the available rect `r`
-fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
-    // Cut the given rectangle into three vertical pieces
-    let popup_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Percentage((100 - percent_y) / 2),
-            Constraint::Percentage(percent_y),
-            Constraint::Percentage((100 - percent_y) / 2),
-        ])
-        .split(r);
-
-    // Then cut the middle vertical piece into three width-wise pieces
-    Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage((100 - percent_x) / 2),
-            Constraint::Percentage(percent_x),
-            Constraint::Percentage((100 - percent_x) / 2),
-        ])
-        .split(popup_layout[1])[1] // Return the middle chunk
+fn get_keys_hints(screen: &CurrentScreen) -> &'static str {
+    match screen {
+        CurrentScreen::Releases => {
+            "down: j | up: k | focus release notes: l | toggle: space | confirm: enter | abort: ctrl+c"
+        }
+        CurrentScreen::ReleaseNotes => {
+            "down: j | up: k | focus packages: h | confirm: enter | abort: ctrl+c"
+        }
+    }
 }

@@ -16,13 +16,17 @@ use crate::tui::{restore_terminal, setup_terminal};
 fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = setup_terminal()?;
 
-    let mut app = App::new();
+    let values = vec!["foo", "bar", "baz"];
+    let mut app = App::new(&values);
     let res = run_app(&mut terminal, &mut app);
 
     restore_terminal(&mut terminal)?;
 
     match res {
-        Ok(true) => app.print_json()?,
+        Ok(true) => {
+            let output = app.get_selection();
+            println!("{output}");
+        }
         Ok(false) => return Err("Not printing; aborting with exit code 1 …".into()),
         Err(err) => return Err(err.into()),
     }
@@ -30,9 +34,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<bool> {
+fn run_app<B: Backend<Error = io::Error>>(
+    terminal: &mut Terminal<B>,
+    app: &mut App,
+) -> io::Result<bool> {
     loop {
-        terminal.draw(|f| f.render_widget(&*app, f.area()))?;
+        terminal.draw(|frame| frame.render_widget(&*app, frame.area()))?;
 
         if let Event::Key(key) = event::read()? {
             app.handle_key(key);
