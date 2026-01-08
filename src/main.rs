@@ -9,6 +9,8 @@ use std::{
 };
 
 mod app;
+mod app_shell;
+mod multi_select;
 mod tui;
 use crate::app::App;
 use crate::tui::{restore_terminal, setup_terminal};
@@ -24,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match res {
         Ok(true) => {
-            let output = app.get_selection();
+            let output = app.get_selected_releases();
             println!("{output}");
         }
         Ok(false) => return Err("Not printing; aborting with exit code 1 …".into()),

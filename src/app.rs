@@ -1,32 +1,26 @@
-use std::cmp;
-
 use ratatui::{
     crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::Rect,
     style::{Color, Style},
-    text::{Line, Span},
-    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Widget},
+    text::Line,
+    widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
+
+use crate::app_shell::AppShell;
+use crate::multi_select::MultiSelect;
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
-struct SelectOption {
-    value: String,
-    selected: bool,
-}
-
 pub struct App<'a> {
-    pub cursor: usize,
-    pub scroll: u16,
-    pub releases: &'a [&'a str],
-    options: Vec<SelectOption>,
-    pub release_notes: &'a str,
-    pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
+    scroll: u16,
+    release_notes: &'a str,
+    focused_pane: Pane,
+    multiselect: MultiSelect,
     pub should_exit: Option<ShouldPrint>, // `Ok(…)` if user wants to exit; … == true iff they want to print the JSON
 }
 
 #[derive(PartialEq)]
-pub enum CurrentScreen {
+pub enum Pane {
     Releases,
     ReleaseNotes,
 }
@@ -35,19 +29,11 @@ type ShouldPrint = bool;
 
 impl<'a> App<'a> {
     pub fn new(releases: &'a [&str]) -> App<'a> {
-        let options: Vec<SelectOption> = releases
-            .iter()
-            .map(|&s| SelectOption {
-                value: s.into(),
-                selected: false,
-            })
-            .collect();
+        let focused_pane = Pane::Releases;
 
         App {
-            cursor: 0,
             scroll: 0,
-            releases,
-            options,
+            multiselect: MultiSelect::new(releases, focused_pane == Pane::Releases),
             release_notes: "# Level 1\n\
 \n\
             **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
@@ -63,19 +49,19 @@ impl<'a> App<'a> {
             ## Something deeper\n\
 \n\
             *Lorem ipsum* dolor sit amet, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.",
-            current_screen: CurrentScreen::Releases,
+            focused_pane,
             should_exit: None,
         }
     }
 
     pub fn handle_key(&mut self, key: KeyEvent) {
         if key.kind == KeyEventKind::Press {
-            match self.current_screen {
-                CurrentScreen::Releases => match key.code {
+            match self.focused_pane {
+                Pane::Releases => match key.code {
                     KeyCode::Char('l') => self.focus_release_notes(),
-                    KeyCode::Char('k') => self.focus_previous_option(),
-                    KeyCode::Char('j') => self.focus_next_option(),
-                    KeyCode::Char(' ') => self.toggle_option(),
+                    KeyCode::Char('k') => self.multiselect.previous(),
+                    KeyCode::Char('j') => self.multiselect.next(),
+                    KeyCode::Char(' ') => self.multiselect.toggle(),
                     KeyCode::Enter => self.should_exit = Some(true),
                     KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
                         self.should_exit = Some(false)
@@ -83,7 +69,7 @@ impl<'a> App<'a> {
                     _ => {}
                 },
 
-                CurrentScreen::ReleaseNotes if key.kind == KeyEventKind::Press => match key.code {
+                Pane::ReleaseNotes => match key.code {
                     KeyCode::Char('h') => self.focus_releases(),
                     KeyCode::Char('k') => self.scroll_up(),
                     KeyCode::Char('j') => self.scroll_down(),
@@ -93,24 +79,8 @@ impl<'a> App<'a> {
                     }
                     _ => {}
                 },
-
-                _ => {}
             }
         }
-    }
-
-    pub fn focus_previous_option(&mut self) {
-        self.cursor = self.cursor.saturating_sub(1);
-    }
-
-    pub fn focus_next_option(&mut self) {
-        let max_cursor = self.releases.len() - 1;
-
-        self.cursor = cmp::min(max_cursor, self.cursor.wrapping_add(1))
-    }
-
-    pub fn toggle_option(&mut self) {
-        self.options[self.cursor].selected = !self.options[self.cursor].selected;
     }
 
     pub fn scroll_up(&mut self) {
@@ -122,29 +92,18 @@ impl<'a> App<'a> {
     }
 
     pub fn focus_releases(&mut self) {
-        self.current_screen = CurrentScreen::Releases;
+        self.focused_pane = Pane::Releases;
+        self.multiselect.active = true;
     }
 
     pub fn focus_release_notes(&mut self) {
-        self.current_screen = CurrentScreen::ReleaseNotes;
+        self.focused_pane = Pane::ReleaseNotes;
+        self.multiselect.active = false;
     }
 
-    pub fn get_selection(&self) -> String {
-        self.options
-            .iter()
-            .filter(|o| o.selected)
-            .map(|o| o.value.as_str())
-            .collect::<Vec<_>>()
-            .join(" ")
+    pub fn get_selected_releases(&self) -> String {
+        self.multiselect.selected().join(" ")
     }
-}
-
-fn get_block<'a>(active: bool) -> Block<'a> {
-    Block::default()
-        .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
-        .border_style(get_style(active))
-        .style(Style::default())
 }
 
 fn get_style<'a>(active: bool) -> Style {
@@ -154,104 +113,21 @@ fn get_style<'a>(active: bool) -> Style {
     }
 }
 
-pub struct AppShell<L, R, F> {
-    left: L,
-    right: R,
-    footer: F,
-}
-
-impl<L: Widget, R: Widget, F: Widget> AppShell<L, R, F> {
-    fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
-        let area = area.intersection(buf.area);
-        if area.is_empty() {
-            return;
-        }
-
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Min(1), Constraint::Length(1)])
-            .split(area);
-
-        let main_chunk = chunks[0];
-        let footer_chunk = chunks[1];
-
-        let column_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Length(40), Constraint::Min(1)])
-            .split(main_chunk);
-
-        let left_column = column_chunks[0];
-        let right_column = column_chunks[1];
-
-        self.left.render(left_column, buf);
-        self.right.render(right_column, buf);
-        self.footer.render(footer_chunk, buf);
-    }
-}
-
-fn indicator(active: bool) -> Span<'static> {
-    Span::styled(
-        ">",
-        match active {
-            true => Style::default().fg(Color::Cyan),
-            false => Style::default().fg(Color::DarkGray),
-        },
-    )
-}
-
-fn no_indicator() -> Span<'static> {
-    Span::raw(" ")
-}
-
-fn create_option_item<'a>(label: &'a str, selected: bool, indicator: Span<'a>) -> Line<'a> {
-    Line::from(vec![
-        indicator,
-        Span::styled("[", Style::default().fg(Color::DarkGray)),
-        Span::styled(
-            if selected { "x" } else { " " },
-            Style::default().fg(Color::Cyan),
-        ),
-        Span::styled("]", Style::default().fg(Color::DarkGray)),
-        Span::raw(format!(" {: <25}", label)),
-    ])
-}
-
 impl Widget for &App<'_> {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
         let release_notes = Paragraph::new(tui_markdown::from_str(self.release_notes))
             .wrap(ratatui::widgets::Wrap { trim: true })
             .scroll((self.scroll, 0))
-            .block(get_block(
-                self.current_screen == CurrentScreen::ReleaseNotes,
-            ));
-
-        let list_items: Vec<ListItem> = self
-            .options
-            .iter()
-            .enumerate()
-            .map(|(i, option)| {
-                let indicator = if i == self.cursor {
-                    indicator(self.current_screen == CurrentScreen::Releases)
-                } else {
-                    no_indicator()
-                };
-
-                create_option_item(&option.value, option.selected, indicator)
-            })
-            .map(|o| ListItem::new(o))
-            .collect();
-
-        let releases =
-            List::new(list_items).block(get_block(self.current_screen == CurrentScreen::Releases));
+            .block(get_block(self.focused_pane == Pane::ReleaseNotes));
 
         let keys_hints = Line::styled(
-            get_keys_hints(&self.current_screen),
+            get_keys_hints(&self.focused_pane),
             Style::default().fg(Color::DarkGray),
         )
         .centered();
 
         AppShell {
-            left: releases,
+            left: &self.multiselect,
             right: release_notes,
             footer: keys_hints,
         }
@@ -259,13 +135,21 @@ impl Widget for &App<'_> {
     }
 }
 
-fn get_keys_hints(screen: &CurrentScreen) -> &'static str {
-    match screen {
-        CurrentScreen::Releases => {
+fn get_keys_hints(pane: &Pane) -> &'static str {
+    match pane {
+        Pane::Releases => {
             "down: j | up: k | focus release notes: l | toggle: space | confirm: enter | abort: ctrl+c"
         }
-        CurrentScreen::ReleaseNotes => {
+        Pane::ReleaseNotes => {
             "down: j | up: k | focus packages: h | confirm: enter | abort: ctrl+c"
         }
     }
+}
+
+fn get_block<'a>(active: bool) -> Block<'a> {
+    Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(get_style(active))
+        .style(Style::default())
 }
