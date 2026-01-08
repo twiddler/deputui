@@ -135,13 +135,13 @@ fn get_style<'a>(active: bool) -> Style {
     }
 }
 
-pub struct AppShell<'a> {
-    left: List<'a>,
-    right: Paragraph<'a>,
-    footer: Span<'a>,
+pub struct AppShell<L, R, F> {
+    left: L,
+    right: R,
+    footer: F,
 }
 
-impl<'a> Widget for AppShell<'a> {
+impl<L: Widget, R: Widget, F: Widget> AppShell<L, R, F> {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
         let area = area.intersection(buf.area);
         if area.is_empty() {
@@ -213,10 +213,11 @@ impl Widget for &App<'_> {
         let releases =
             List::new(list_items).block(get_block(self.current_screen == CurrentScreen::Releases));
 
-        let keys_hints = Span::styled(
+        let keys_hints = Line::styled(
             get_keys_hints(&self.current_screen),
             Style::default().fg(Color::DarkGray),
-        );
+        )
+        .centered();
 
         AppShell {
             left: releases,
