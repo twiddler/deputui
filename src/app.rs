@@ -192,7 +192,13 @@ impl<L: Widget, R: Widget, F: Widget> AppShell<L, R, F> {
 }
 
 fn indicator(active: bool) -> Span<'static> {
-    Span::styled(">", get_style(active))
+    Span::styled(
+        ">",
+        match active {
+            true => Style::default().fg(Color::Cyan),
+            false => Style::default().fg(Color::DarkGray),
+        },
+    )
 }
 
 fn no_indicator() -> Span<'static> {
@@ -202,11 +208,13 @@ fn no_indicator() -> Span<'static> {
 fn create_option_item<'a>(label: &'a str, selected: bool, indicator: Span<'a>) -> Line<'a> {
     Line::from(vec![
         indicator,
-        Span::raw(format!(
-            " [{}] {: <25}",
+        Span::styled("[", Style::default().fg(Color::DarkGray)),
+        Span::styled(
             if selected { "x" } else { " " },
-            label
-        )),
+            Style::default().fg(Color::Cyan),
+        ),
+        Span::styled("]", Style::default().fg(Color::DarkGray)),
+        Span::raw(format!(" {: <25}", label)),
     ])
 }
 
