@@ -139,7 +139,7 @@ impl Widget for &App<'_> {
 fn get_keys_hints(pane: &Pane) -> &'static str {
     match pane {
         Pane::Releases => {
-            "down: j | up: k | focus release notes: l | toggle: space | confirm: enter | abort: ctrl+c"
+            "down: j | up: k | focus release notes: l | toggle: ␣ | confirm: ⏎ | abort: ctrl+c"
         }
         Pane::ReleaseNotes => "down: j | up: k | focus packages: h | abort: ctrl+c",
     }
