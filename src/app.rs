@@ -10,10 +10,16 @@ use ratatui::{
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
+struct SelectOption {
+    value: String,
+    selected: bool,
+}
+
 pub struct App<'a> {
     pub cursor: usize,
     pub scroll: u16,
     pub releases: &'a [&'a str],
+    options: Vec<SelectOption>,
     pub release_notes: &'a str,
     pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
     pub should_exit: Option<ShouldPrint>, // `Ok(…)` if user wants to exit; … == true iff they want to print the JSON
@@ -28,11 +34,20 @@ pub enum CurrentScreen {
 type ShouldPrint = bool;
 
 impl<'a> App<'a> {
-    pub fn new(foo: &'a [&str]) -> App<'a> {
+    pub fn new(releases: &'a [&str]) -> App<'a> {
+        let options: Vec<SelectOption> = releases
+            .iter()
+            .map(|&s| SelectOption {
+                value: s.into(),
+                selected: false,
+            })
+            .collect();
+
         App {
             cursor: 0,
             scroll: 0,
-            releases: foo,
+            releases,
+            options,
             release_notes: "# Level 1\n\
 \n\
             **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
@@ -58,10 +73,9 @@ impl<'a> App<'a> {
             match self.current_screen {
                 CurrentScreen::Releases => match key.code {
                     KeyCode::Char('l') => self.focus_release_notes(),
-
                     KeyCode::Char('k') => self.focus_previous_option(),
                     KeyCode::Char('j') => self.focus_next_option(),
-
+                    KeyCode::Char(' ') => self.toggle_option(),
                     KeyCode::Enter => self.should_exit = Some(true),
                     KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
                         self.should_exit = Some(false)
@@ -71,10 +85,8 @@ impl<'a> App<'a> {
 
                 CurrentScreen::ReleaseNotes if key.kind == KeyEventKind::Press => match key.code {
                     KeyCode::Char('h') => self.focus_releases(),
-
                     KeyCode::Char('k') => self.scroll_up(),
                     KeyCode::Char('j') => self.scroll_down(),
-
                     KeyCode::Enter => self.should_exit = Some(true),
                     KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
                         self.should_exit = Some(false)
@@ -97,6 +109,10 @@ impl<'a> App<'a> {
         self.cursor = cmp::min(max_cursor, self.cursor.wrapping_add(1))
     }
 
+    pub fn toggle_option(&mut self) {
+        self.options[self.cursor].selected = !self.options[self.cursor].selected;
+    }
+
     pub fn scroll_up(&mut self) {
         self.scroll = self.scroll.saturating_sub(SCROLL_STEP_SIZE)
     }
@@ -116,7 +132,12 @@ impl<'a> App<'a> {
     }
 
     pub fn get_selection(&self) -> String {
-        self.releases.join(" ")
+        self.options
+            .iter()
+            .filter(|o| o.selected)
+            .map(|o| o.value.as_str())
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }
 
@@ -178,10 +199,14 @@ fn no_indicator() -> Span<'static> {
     Span::raw(" ")
 }
 
-fn create_option<'a>(release: &'a str, indicate: Span<'a>) -> Line<'a> {
+fn create_option_item<'a>(label: &'a str, selected: bool, indicator: Span<'a>) -> Line<'a> {
     Line::from(vec![
-        indicate,
-        Span::raw(format!(" [{}] {: <25}", " ", release)),
+        indicator,
+        Span::raw(format!(
+            " [{}] {: <25}",
+            if selected { "x" } else { " " },
+            label
+        )),
     ])
 }
 
@@ -195,17 +220,17 @@ impl Widget for &App<'_> {
             ));
 
         let list_items: Vec<ListItem> = self
-            .releases
+            .options
             .iter()
             .enumerate()
-            .map(|(i, release)| {
+            .map(|(i, option)| {
                 let indicator = if i == self.cursor {
                     indicator(self.current_screen == CurrentScreen::Releases)
                 } else {
                     no_indicator()
                 };
 
-                create_option(release, indicator)
+                create_option_item(&option.value, option.selected, indicator)
             })
             .map(|o| ListItem::new(o))
             .collect();
