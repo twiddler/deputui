@@ -9,8 +9,8 @@ pub struct AppShell<L, R, F> {
     pub footer: F,
 }
 
-impl<L: Widget, R: Widget, F: Widget> AppShell<L, R, F> {
-    pub fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
+impl<L: Widget, R: Widget, F: Widget> Widget for AppShell<L, R, F> {
+    fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
         let area = area.intersection(buf.area);
         if area.is_empty() {
             return;

@@ -2,7 +2,7 @@ use ratatui::{
     crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     layout::Rect,
     style::{Color, Style},
-    text::Line,
+    text::{Line, Text},
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
 
@@ -11,12 +11,12 @@ use crate::{app_shell::AppShell, multi_select::MultiSelectView};
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
-pub struct App<'a> {
+pub struct App {
     scroll: u16,
-    release_notes: &'a str,
+    release_notes: Option<String>,
     focused_pane: Pane,
     multiselect: MultiSelect,
-    pub should_exit: Option<ShouldPrint>, // `Ok(…)` if user wants to exit; … == true iff they want to print the JSON
+    pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
 }
 
 #[derive(PartialEq)]
@@ -25,16 +25,90 @@ pub enum Pane {
     ReleaseNotes,
 }
 
-type ShouldPrint = bool;
+#[derive(PartialEq)]
+pub enum ExitAction {
+    Abort,
+    PrintSelected,
+}
 
-impl<'a> App<'a> {
-    pub fn new(releases: &'a [&str]) -> App<'a> {
+impl App {
+    pub fn new(releases: &[&str]) -> App {
         let focused_pane = Pane::Releases;
 
-        App {
+        let mut app = App {
             scroll: 0,
             multiselect: MultiSelect::new(releases),
-            release_notes: "# Level 1\n\
+            release_notes: None,
+            focused_pane,
+            should_exit: None,
+        };
+
+        app.show_release_notes_of_active_package();
+
+        app
+    }
+
+    pub fn handle_key(&mut self, key: KeyEvent) {
+        if key.kind != KeyEventKind::Press {
+            return;
+        }
+
+        if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
+            self.should_exit = Some(ExitAction::Abort);
+            return;
+        }
+
+        match self.focused_pane {
+            Pane::Releases => match key.code {
+                KeyCode::Char('l') => self.focus_pane(Pane::ReleaseNotes),
+                KeyCode::Char('k') => {
+                    self.multiselect.previous();
+                    self.show_release_notes_of_active_package();
+                }
+                KeyCode::Char('j') => {
+                    self.multiselect.next();
+                    self.show_release_notes_of_active_package();
+                }
+                KeyCode::Char(' ') => self.multiselect.toggle(),
+                KeyCode::Enter => self.should_exit = Some(ExitAction::PrintSelected),
+                _ => {}
+            },
+
+            Pane::ReleaseNotes => match key.code {
+                KeyCode::Char('h') => self.focus_pane(Pane::Releases),
+                KeyCode::Char('k') => self.scroll_up(),
+                KeyCode::Char('j') => self.scroll_down(),
+                _ => {}
+            },
+        }
+    }
+
+    pub fn show_release_notes_of_active_package(&mut self) {
+        let package = self.multiselect.active_value();
+        self.release_notes = get_release_notes_of(&package);
+    }
+
+    pub fn scroll_up(&mut self) {
+        self.scroll = self.scroll.saturating_sub(SCROLL_STEP_SIZE)
+    }
+
+    pub fn scroll_down(&mut self) {
+        self.scroll = self.scroll.saturating_add(SCROLL_STEP_SIZE);
+    }
+
+    pub fn focus_pane(&mut self, pane: Pane) {
+        self.focused_pane = pane;
+    }
+
+    pub fn get_selected_releases(&self) -> Vec<&str> {
+        self.multiselect.selected()
+    }
+}
+
+fn get_release_notes_of(package: &str) -> Option<String> {
+    match package {
+            "foo" => Some(
+                "# Level 1\n\
 \n\
             **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
 \n\
@@ -48,71 +122,27 @@ impl<'a> App<'a> {
 \n\
             ## Something deeper\n\
 \n\
-            *Lorem ipsum* dolor sit amet, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.",
-            focused_pane,
-            should_exit: None,
+            *Lorem ipsum* dolor sit amet, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.".to_string(),
+            ),
+            "bar" => Some("bar".to_string()),
+            _ => None,
         }
-    }
-
-    pub fn handle_key(&mut self, key: KeyEvent) {
-        if key.kind == KeyEventKind::Press {
-            match self.focused_pane {
-                Pane::Releases => match key.code {
-                    KeyCode::Char('l') => self.focus_release_notes(),
-                    KeyCode::Char('k') => self.multiselect.previous(),
-                    KeyCode::Char('j') => self.multiselect.next(),
-                    KeyCode::Char(' ') => self.multiselect.toggle(),
-                    KeyCode::Enter => self.should_exit = Some(true),
-                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-                        self.should_exit = Some(false)
-                    }
-                    _ => {}
-                },
-
-                Pane::ReleaseNotes => match key.code {
-                    KeyCode::Char('h') => self.focus_releases(),
-                    KeyCode::Char('k') => self.scroll_up(),
-                    KeyCode::Char('j') => self.scroll_down(),
-                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-                        self.should_exit = Some(false)
-                    }
-                    _ => {}
-                },
-            }
-        }
-    }
-
-    pub fn scroll_up(&mut self) {
-        self.scroll = self.scroll.saturating_sub(SCROLL_STEP_SIZE)
-    }
-
-    pub fn scroll_down(&mut self) {
-        self.scroll = self.scroll.wrapping_add(SCROLL_STEP_SIZE);
-    }
-
-    pub fn focus_releases(&mut self) {
-        self.focused_pane = Pane::Releases;
-    }
-
-    pub fn focus_release_notes(&mut self) {
-        self.focused_pane = Pane::ReleaseNotes;
-    }
-
-    pub fn get_selected_releases(&self) -> String {
-        self.multiselect.selected().join(" ")
-    }
 }
-
-fn get_style<'a>(active: bool) -> Style {
+fn get_style(active: bool) -> Style {
     match active {
         true => Style::default(),
         false => Style::default().fg(Color::DarkGray),
     }
 }
 
-impl Widget for &App<'_> {
+impl Widget for &App {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
-        let release_notes = Paragraph::new(tui_markdown::from_str(self.release_notes))
+        let release_notes_text = match &self.release_notes {
+            None => Text::styled("--- No release notes ---", Color::Yellow),
+            Some(s) => tui_markdown::from_str(s),
+        };
+
+        let release_notes = Paragraph::new(release_notes_text)
             .wrap(ratatui::widgets::Wrap { trim: true })
             .scroll((self.scroll, 0))
             .block(get_block(self.focused_pane == Pane::ReleaseNotes));
@@ -145,7 +175,7 @@ fn get_keys_hints(pane: &Pane) -> &'static str {
     }
 }
 
-fn get_block<'a>(active: bool) -> Block<'a> {
+fn get_block(active: bool) -> Block<'static> {
     Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)

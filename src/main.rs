@@ -12,7 +12,7 @@ mod app;
 mod app_shell;
 mod multi_select;
 mod tui;
-use crate::app::App;
+use crate::app::{App, ExitAction};
 use crate::tui::{restore_terminal, setup_terminal};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match res {
         Ok(true) => {
-            let output = app.get_selected_releases();
+            let output = app.get_selected_releases().join(" ");
             println!("{output}");
         }
         Ok(false) => return Err("Not printing; aborting with exit code 1 …".into()),
@@ -46,8 +46,8 @@ fn run_app<B: Backend<Error = io::Error>>(
         if let Event::Key(key) = event::read()? {
             app.handle_key(key);
 
-            if let Some(action) = app.should_exit {
-                return Ok(action);
+            if let Some(action) = &app.should_exit {
+                return Ok(action == &ExitAction::PrintSelected);
             }
         }
     }

@@ -67,7 +67,7 @@ impl MultiSelect {
     pub fn next(&mut self) {
         let max_cursor = self.options.len() - 1;
 
-        self.cursor = cmp::min(max_cursor, self.cursor.wrapping_add(1))
+        self.cursor = cmp::min(max_cursor, self.cursor.saturating_add(1))
     }
 
     pub fn toggle(&mut self) {
@@ -80,6 +80,10 @@ impl MultiSelect {
             .filter(|o| o.selected)
             .map(|o| o.value.as_str())
             .collect()
+    }
+
+    pub fn active_value(&self) -> String {
+        self.options[self.cursor].value.clone()
     }
 }
 
