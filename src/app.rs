@@ -6,16 +6,28 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
 
-use crate::multi_select::MultiSelect;
+use crate::multi_select::{MultiSelect, SelectOption};
 use crate::{app_shell::AppShell, multi_select::MultiSelectView};
 
 const SCROLL_STEP_SIZE: u16 = 5;
+
+#[derive(Clone)]
+pub struct Release {
+    pub package: String,
+    pub semver: String,
+}
+
+impl ToString for Release {
+    fn to_string(&self) -> String {
+        format!("{}@{}", self.package, self.semver)
+    }
+}
 
 pub struct App {
     scroll: u16,
     release_notes: Option<String>,
     focused_pane: Pane,
-    multiselect: MultiSelect,
+    multiselect: MultiSelect<Release>,
     pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
 }
 
@@ -32,12 +44,22 @@ pub enum ExitAction {
 }
 
 impl App {
-    pub fn new(releases: &[&str]) -> App {
+    pub fn new(releases: &[Release]) -> App {
         let focused_pane = Pane::Releases;
+
+        let options = releases
+            .iter()
+            .map(|release| {
+                SelectOption::new(
+                    format!("{}@{}", release.package, release.semver),
+                    release.clone(),
+                )
+            })
+            .collect();
 
         let mut app = App {
             scroll: 0,
-            multiselect: MultiSelect::new(releases),
+            multiselect: MultiSelect::new(options),
             release_notes: None,
             focused_pane,
             should_exit: None,
@@ -85,7 +107,7 @@ impl App {
 
     pub fn show_release_notes_of_focused_release(&mut self) {
         let release = self.multiselect.focused_value();
-        self.release_notes = get_release_notes_of(&release);
+        self.release_notes = get_release_notes_of(release);
     }
 
     pub fn scroll_up(&mut self) {
@@ -100,14 +122,14 @@ impl App {
         self.focused_pane = pane;
     }
 
-    pub fn get_selected_releases(&self) -> Vec<&str> {
-        self.multiselect.selected()
+    pub fn get_selected_releases(&self) -> Vec<&Release> {
+        self.multiselect.selected_values()
     }
 }
 
-fn get_release_notes_of(release: &str) -> Option<String> {
-    match release {
-            "foo" => Some(
+fn get_release_notes_of(release: &Release) -> Option<String> {
+    match release.to_string().as_str() {
+            "foo@1.0.0" => Some(
                 "# Level 1\n\
 \n\
             **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
@@ -124,7 +146,7 @@ fn get_release_notes_of(release: &str) -> Option<String> {
 \n\
             *Lorem ipsum* dolor sit amet, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.".to_string(),
             ),
-            "bar" => Some("bar".to_string()),
+            "bar@2.2.2" => Some("bar".to_string()),
             _ => None,
         }
 }

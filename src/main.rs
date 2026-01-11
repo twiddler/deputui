@@ -12,13 +12,24 @@ mod app;
 mod app_shell;
 mod multi_select;
 mod tui;
-use crate::app::{App, ExitAction};
+use crate::app::{App, ExitAction, Release};
 use crate::tui::{restore_terminal, setup_terminal};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = setup_terminal()?;
 
-    let values = vec!["foo", "bar", "baz"];
+
+    let values = vec![
+        Release {
+            package: "foo".into(),
+            semver: "1.0.0".into(),
+        },
+        Release {
+            package: "bar".into(),
+            semver: "2.2.2".into(),
+        },
+    ];
+
     let mut app = App::new(&values);
     let res = run_app(&mut terminal, &mut app);
 
@@ -26,7 +37,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match res {
         Ok(true) => {
-            let output = app.get_selected_releases().join(" ");
+            let output = app
+                .get_selected_releases()
+                .iter()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>()
+                .join(" ");
             println!("{output}");
         }
         Ok(false) => return Err("Not printing; aborting with exit code 1 …".into()),

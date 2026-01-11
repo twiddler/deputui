@@ -7,13 +7,13 @@ use ratatui::{
     widgets::{Block, List, ListItem, Widget},
 };
 
-pub struct MultiSelectView<'a> {
-    pub multi_select: &'a MultiSelect,
+pub struct MultiSelectView<'a, T> {
+    pub multi_select: &'a MultiSelect<T>,
     pub focused: bool,
     pub block: Block<'a>,
 }
 
-impl Widget for MultiSelectView<'_> {
+impl<T> Widget for MultiSelectView<'_, T> {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
         let area = area.intersection(buf.area);
         if area.is_empty() {
@@ -25,14 +25,14 @@ impl Widget for MultiSelectView<'_> {
             .options
             .iter()
             .enumerate()
-            .map(|(i, option)| {
+            .map(|(i, select_option)| {
                 let indicator = if i == self.multi_select.cursor {
                     indicator(self.focused)
                 } else {
                     no_indicator()
                 };
 
-                create_option_item(&option.value, option.selected, indicator)
+                create_option_item(&select_option.label, select_option.selected, indicator)
             })
             .map(|o| ListItem::new(o))
             .collect();
@@ -41,23 +41,14 @@ impl Widget for MultiSelectView<'_> {
     }
 }
 
-pub struct MultiSelect {
-    options: Vec<SelectOption>,
+pub struct MultiSelect<T> {
+    options: Vec<SelectOption<T>>,
     cursor: usize,
 }
 
-impl MultiSelect {
-    pub fn new(values: &[&str]) -> MultiSelect {
-        MultiSelect {
-            options: values
-                .iter()
-                .map(|&s| SelectOption {
-                    value: s.into(),
-                    selected: false,
-                })
-                .collect(),
-            cursor: 0,
-        }
+impl<T> MultiSelect<T> {
+    pub fn new(options: Vec<SelectOption<T>>) -> MultiSelect<T> {
+        MultiSelect { options, cursor: 0 }
     }
 
     pub fn previous(&mut self) {
@@ -74,22 +65,33 @@ impl MultiSelect {
         self.options[self.cursor].selected = !self.options[self.cursor].selected;
     }
 
-    pub fn selected(&self) -> Vec<&str> {
+    pub fn selected_values(&self) -> Vec<&T> {
         self.options
             .iter()
             .filter(|o| o.selected)
-            .map(|o| o.value.as_str())
+            .map(|o| &o.value)
             .collect()
     }
 
-    pub fn focused_value(&self) -> String {
-        self.options[self.cursor].value.clone()
+    pub fn focused_value(&self) -> &T {
+        &self.options[self.cursor].value
     }
 }
 
-struct SelectOption {
-    value: String,
+pub struct SelectOption<T> {
+    label: String,
+    value: T,
     selected: bool,
+}
+
+impl<T> SelectOption<T> {
+    pub fn new(label: String, value: T) -> SelectOption<T> {
+        SelectOption {
+            label,
+            value,
+            selected: false,
+        }
+    }
 }
 
 fn indicator(focused: bool) -> Span<'static> {
