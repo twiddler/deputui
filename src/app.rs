@@ -43,7 +43,7 @@ impl App {
             should_exit: None,
         };
 
-        app.show_release_notes_of_active_package();
+        app.show_release_notes_of_focused_release();
 
         app
     }
@@ -63,11 +63,11 @@ impl App {
                 KeyCode::Char('l') => self.focus_pane(Pane::ReleaseNotes),
                 KeyCode::Char('k') => {
                     self.multiselect.previous();
-                    self.show_release_notes_of_active_package();
+                    self.show_release_notes_of_focused_release();
                 }
                 KeyCode::Char('j') => {
                     self.multiselect.next();
-                    self.show_release_notes_of_active_package();
+                    self.show_release_notes_of_focused_release();
                 }
                 KeyCode::Char(' ') => self.multiselect.toggle(),
                 KeyCode::Enter => self.should_exit = Some(ExitAction::PrintSelected),
@@ -83,9 +83,9 @@ impl App {
         }
     }
 
-    pub fn show_release_notes_of_active_package(&mut self) {
-        let package = self.multiselect.active_value();
-        self.release_notes = get_release_notes_of(&package);
+    pub fn show_release_notes_of_focused_release(&mut self) {
+        let release = self.multiselect.focused_value();
+        self.release_notes = get_release_notes_of(&release);
     }
 
     pub fn scroll_up(&mut self) {
@@ -105,8 +105,8 @@ impl App {
     }
 }
 
-fn get_release_notes_of(package: &str) -> Option<String> {
-    match package {
+fn get_release_notes_of(release: &str) -> Option<String> {
+    match release {
             "foo" => Some(
                 "# Level 1\n\
 \n\
@@ -128,8 +128,9 @@ fn get_release_notes_of(package: &str) -> Option<String> {
             _ => None,
         }
 }
-fn get_style(active: bool) -> Style {
-    match active {
+
+fn get_style(focused: bool) -> Style {
+    match focused {
         true => Style::default(),
         false => Style::default().fg(Color::DarkGray),
     }
@@ -156,7 +157,7 @@ impl Widget for &App {
         AppShell {
             left: MultiSelectView {
                 multi_select: &self.multiselect,
-                active: self.focused_pane == Pane::Releases,
+                focused: self.focused_pane == Pane::Releases,
                 block: get_block(self.focused_pane == Pane::Releases),
             },
             right: release_notes,
@@ -171,14 +172,14 @@ fn get_keys_hints(pane: &Pane) -> &'static str {
         Pane::Releases => {
             "down: j | up: k | focus release notes: l | toggle: ␣ | confirm: ⏎ | abort: ctrl+c"
         }
-        Pane::ReleaseNotes => "down: j | up: k | focus packages: h | abort: ctrl+c",
+        Pane::ReleaseNotes => "down: j | up: k | focus releases: h | abort: ctrl+c",
     }
 }
 
-fn get_block(active: bool) -> Block<'static> {
+fn get_block(focused: bool) -> Block<'static> {
     Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .border_style(get_style(active))
+        .border_style(get_style(focused))
         .style(Style::default())
 }

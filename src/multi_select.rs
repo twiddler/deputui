@@ -9,7 +9,7 @@ use ratatui::{
 
 pub struct MultiSelectView<'a> {
     pub multi_select: &'a MultiSelect,
-    pub active: bool,
+    pub focused: bool,
     pub block: Block<'a>,
 }
 
@@ -27,7 +27,7 @@ impl Widget for MultiSelectView<'_> {
             .enumerate()
             .map(|(i, option)| {
                 let indicator = if i == self.multi_select.cursor {
-                    indicator(self.active)
+                    indicator(self.focused)
                 } else {
                     no_indicator()
                 };
@@ -82,7 +82,7 @@ impl MultiSelect {
             .collect()
     }
 
-    pub fn active_value(&self) -> String {
+    pub fn focused_value(&self) -> String {
         self.options[self.cursor].value.clone()
     }
 }
@@ -92,10 +92,10 @@ struct SelectOption {
     selected: bool,
 }
 
-fn indicator(active: bool) -> Span<'static> {
+fn indicator(focused: bool) -> Span<'static> {
     Span::styled(
         ">",
-        match active {
+        match focused {
             true => Style::default().fg(Color::Cyan),
             false => Style::default().fg(Color::DarkGray),
         },
