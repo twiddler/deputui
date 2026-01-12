@@ -30,6 +30,10 @@
           cargo
           rustc
           rustfmt
+
+          # for building `async-native-tls`
+          pkg-config
+          openssl
         ];
       };
     };

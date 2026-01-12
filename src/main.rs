@@ -3,34 +3,37 @@ use ratatui::{
     backend::Backend,
     crossterm::event::{self, Event},
 };
+use serde::Deserialize;
 use std::{
+    collections::BTreeMap,
     error::Error,
-    io::{self},
+    io::{self, Read},
 };
 
 mod app;
 mod app_shell;
+mod async_h1_client;
 mod multi_select;
 mod tui;
 use crate::app::{App, ExitAction, Release};
 use crate::tui::{restore_terminal, setup_terminal};
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let parsed = parse_input()?;
+
+    let mut releases: Vec<Release> = parsed
+        .into_iter()
+        .map(|(package_name, package_info)| Release {
+            package: package_name,
+            semver: package_info.wanted,
+        })
+        .collect();
+
+    releases.sort();
+
     let mut terminal = setup_terminal()?;
 
-
-    let values = vec![
-        Release {
-            package: "foo".into(),
-            semver: "1.0.0".into(),
-        },
-        Release {
-            package: "bar".into(),
-            semver: "2.2.2".into(),
-        },
-    ];
-
-    let mut app = App::new(&values);
+    let mut app = App::new(&releases);
     let res = run_app(&mut terminal, &mut app);
 
     restore_terminal(&mut terminal)?;
@@ -67,4 +70,19 @@ fn run_app<B: Backend<Error = io::Error>>(
             }
         }
     }
+}
+
+// Input
+//
+#[derive(Deserialize)]
+struct PnpmOutdatedPackage {
+    wanted: String,
+}
+
+type PnpmOutdatedOutput = BTreeMap<String, PnpmOutdatedPackage>;
+
+fn parse_input() -> Result<PnpmOutdatedOutput, Box<dyn Error>> {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input)?;
+    Ok(serde_json::from_str(&input)?)
 }
