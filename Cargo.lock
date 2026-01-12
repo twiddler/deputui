@@ -1734,6 +1734,8 @@ dependencies = [
  "anyhow",
  "async-h1",
  "async-native-tls",
+ "futures-core",
+ "futures-util",
  "http-types",
  "ratatui",
  "serde",

@@ -1,20 +1,23 @@
 use ratatui::{
-    Terminal,
     backend::Backend,
-    crossterm::event::{self, Event},
+    crossterm::event::{self, Event, poll},
 };
 use serde::Deserialize;
 use std::{
     collections::BTreeMap,
     error::Error,
     io::{self, Read},
+    time::Duration,
 };
 
 mod app;
 mod app_shell;
 mod async_h1_client;
+mod async_task;
+mod jobs;
 mod multi_select;
 mod tui;
+
 use crate::app::{App, ExitAction, Release};
 use crate::tui::{restore_terminal, setup_terminal};
 
@@ -32,48 +35,45 @@ fn main() -> Result<(), Box<dyn Error>> {
     releases.sort();
 
     let mut terminal = setup_terminal()?;
-
     let mut app = App::new(&releases);
-    let res = run_app(&mut terminal, &mut app);
 
-    restore_terminal(&mut terminal)?;
-
-    match res {
-        Ok(true) => {
-            let output = app
-                .get_selected_releases()
-                .iter()
-                .map(|e| e.to_string())
-                .collect::<Vec<_>>()
-                .join(" ");
-            println!("{output}");
-        }
-        Ok(false) => return Err("Not printing; aborting with exit code 1 …".into()),
-        Err(err) => return Err(err.into()),
-    }
-
-    Ok(())
-}
-
-fn run_app<B: Backend<Error = io::Error>>(
-    terminal: &mut Terminal<B>,
-    app: &mut App,
-) -> io::Result<bool> {
+    // Use smol::block_on to run async processing in sync context
     loop {
-        terminal.draw(|frame| frame.render_widget(&*app, frame.area()))?;
+        // Process async events using smol
+        let _has_events = smol::block_on(async {
+            app.process_async_events().await;
+            app.async_task.is_running()
+        });
 
-        if let Event::Key(key) = event::read()? {
-            app.handle_key(key);
+        terminal.draw(|frame| frame.render_widget(&app, frame.area()))?;
 
-            if let Some(action) = &app.should_exit {
-                return Ok(action == &ExitAction::PrintSelected);
+        // Use non-blocking event reading with timeout
+        if poll(Duration::from_millis(16))? {
+            if let Event::Key(key) = event::read()? {
+                app.handle_key(key);
+
+                if let Some(action) = &app.should_exit {
+                    let result = action == &ExitAction::PrintSelected;
+                    restore_terminal(&mut terminal)?;
+
+                    if result {
+                        let output = app
+                            .get_selected_releases()
+                            .iter()
+                            .map(|e| e.to_string())
+                            .collect::<Vec<_>>()
+                            .join(" ");
+                        println!("{output}");
+                    } else {
+                        return Err("Not printing; aborting with exit code 1 …".into());
+                    }
+                }
             }
         }
     }
 }
 
-// Input
-//
+// Input parsing remains the same
 #[derive(Deserialize)]
 struct PnpmOutdatedPackage {
     wanted: String,

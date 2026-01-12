@@ -8,7 +8,8 @@ use ratatui::{
 
 use crate::{app_shell::AppShell, multi_select::MultiSelectView};
 use crate::{
-    async_h1_client::get,
+    async_task::{AsyncTask, AsyncEvent},
+    jobs::ReleaseNotesJob,
     multi_select::{MultiSelect, SelectOption},
 };
 
@@ -20,6 +21,7 @@ pub struct App {
     focused_pane: Pane,
     multiselect: MultiSelect<Release>,
     pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
+    pub async_task: AsyncTask<String>,
 }
 
 #[derive(PartialEq)]
@@ -54,6 +56,7 @@ impl App {
             release_notes: None,
             focused_pane,
             should_exit: None,
+            async_task: AsyncTask::new(),
         };
 
         app.show_release_notes_of_focused_release();
@@ -97,14 +100,25 @@ impl App {
     }
 
     pub fn show_release_notes_of_focused_release(&mut self) {
-        // let release = self.multiselect.focused_value();
-        // self.release_notes = get_release_notes_of(release);
-        let url = "https://example.com";
+        let release = self.multiselect.focused_value().clone();
+        let job = ReleaseNotesJob::new(release);
+        self.async_task.spawn(job.execute());
+    }
 
-        self.release_notes = match smol::block_on(get(url)) {
-            Ok(s) => Some(s),
-            Err(e) => Some(format!("--- Error fetching release notes: {e} ---")),
-        };
+    pub async fn process_async_events(&mut self) {
+        while let Some(event) = self.async_task.try_recv() {
+            match event {
+                AsyncEvent::LoadingStarted => {
+                    self.release_notes = Some("Loading...".to_string());
+                }
+                AsyncEvent::LoadingComplete(content) => {
+                    self.release_notes = Some(content);
+                }
+                AsyncEvent::LoadingError(error) => {
+                    self.release_notes = Some(format!("--- Error ---\n{}", error));
+                }
+            }
+        }
     }
 
     pub fn scroll_up(&mut self) {
