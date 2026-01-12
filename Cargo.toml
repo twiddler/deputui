@@ -9,10 +9,8 @@ license = "MIT"
 anyhow = "1.0.100"
 async-h1 = "2.3.4"
 async-native-tls = "0.5.0"
-futures-core = "0.3.0"
-futures-util = "0.3.0"
 http-types = "2.12.0"
-ratatui = { version = "0.30.0", features = ["crossterm"] }
+ratatui = "0.30.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 smol = "2.0.2"
