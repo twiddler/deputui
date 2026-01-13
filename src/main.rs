@@ -76,6 +76,7 @@ fn run_app<B: Backend<Error = io::Error>>(
 //
 #[derive(Deserialize)]
 struct PnpmOutdatedPackage {
+    current: String,
     wanted: String,
 }
 
