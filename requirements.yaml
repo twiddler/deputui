@@ -1,0 +1,68 @@
+root:
+  description: This program assists with reviewing and installing minor version updates of outdated NPM dependencies. It shows which minor version updates are available, fetches release notes, allows to select which releases should be installed, and prints them to stdout when the user confirms their selection.
+  done: false
+  subtasks:
+    parse-input:
+      description: This program must parse the output of `pnpm outdated`.
+      done: false
+      tests:
+        parses-successfully:
+          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "wanted": "1.1.0" }}`'
+          assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is wanted
+          done: true
+        errors-if-input-is-empty:
+          arrange: "Given the string ``"
+          assert: The program exits with the error code 1
+          done: false
+
+    fetch-newer-minor-releases:
+      description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
+      done: false
+      tests:
+        includes-minor-versions:
+          arrange: Given the mocked response of npm.js
+          assert: The result of this function includes all minor version updates for the current version
+          done: false
+        does-not-include-patch-versions:
+          arrange: Given the mocked response of npm.js
+          assert: The result of this function did not include patch version updates
+          done: false
+        does-not-include-major-versions:
+          arrange: Given the mocked response of npm.js
+          assert: The result of this function did not include major version updates
+          done: false
+
+    render-releases:
+      description: The program must render the newer minor releases in a list which allows focusing and selecting releases
+      done: true
+      subtasks:
+        focus:
+          description: The user must be able to focus releases with keyboard hotkeys
+          done: true
+        select:
+          description: The user must be able to select entries
+          done: true
+
+    confirm-selection:
+      description: The user must be able to confirm their selection by pressing Enter. The program should then quit and print the selected releases to stdout.
+      done: true
+
+    show-release-notes:
+      description: Given an NPM package name and a version of that package, this program must display the corresponding release notes.
+      done: false
+      subtasks:
+        fetch-release-notes:
+          description: Given a GitHub repository URL and a semver version, this program must fetch the release notes of the release with that version from that repository URL.
+          done: false
+          subtasks:
+            github:
+              description: If the repository is hosted on github.com, try to fetch the release notes of the release with the given semver version. If no release with the given semver version exists, try to fetch the release notes of the release with the given semver version, prefixed with 'v'. If neither a release exists for `<semver>` nor `v<semver>`, return something that indicates that no release notes were found. Otherwise, return the successfully fetched release notes.
+              done: false
+
+            non-github:
+              description: If the repository is not hosted on github.com, return something that indicates that currently only GitHub is supported
+              done: false
+
+            fetch-repository-url:
+              description: Given a package name, this program must determine the corresponding repository URL by querying the npm.js registry. (This feature is not user-facing; we need it for the other features to work.)
+              done: false
