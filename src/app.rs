@@ -5,6 +5,7 @@ use ratatui::{
     text::{Line, Text},
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
+use smol::channel::Sender;
 
 use crate::{app_shell::AppShell, multi_select::MultiSelectView};
 use crate::{
@@ -20,6 +21,7 @@ pub struct App {
     focused_pane: Pane,
     multiselect: MultiSelect<Release>,
     pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
+    render_tx: Sender<()>,               // Channel to trigger re-renders from within App
 }
 
 #[derive(PartialEq)]
@@ -35,7 +37,7 @@ pub enum ExitAction {
 }
 
 impl App {
-    pub fn new(releases: &[Release]) -> App {
+    pub fn new(releases: &[Release], render_tx: Sender<()>) -> App {
         let focused_pane = Pane::Releases;
 
         let options = releases
@@ -54,6 +56,7 @@ impl App {
             release_notes: None,
             focused_pane,
             should_exit: None,
+            render_tx,
         };
 
         app.show_release_notes_of_focused_release();

@@ -1,9 +1,10 @@
 use ratatui::{
     Terminal,
     backend::Backend,
-    crossterm::event::{self, Event},
+    crossterm::event::{self, Event, KeyEvent},
 };
 use serde::Deserialize;
+use smol::{Executor, block_on, channel, future};
 use std::{
     collections::BTreeMap,
     error::Error,
@@ -33,8 +34,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut terminal = setup_terminal()?;
 
-    let mut app = App::new(&releases);
-    let res = run_app(&mut terminal, &mut app);
+    // Create channel for render triggers
+    let (_data_ready_tx, data_ready_rx) = channel::bounded::<()>(1);
+
+    let mut app = App::new(&releases, _data_ready_tx);
+    let res = block_on(async {
+        let executor = Executor::new();
+        executor
+            .run(run_app_async(&mut terminal, &mut app, data_ready_rx))
+            .await
+    });
 
     restore_terminal(&mut terminal)?;
 
@@ -55,19 +64,51 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_app<B: Backend<Error = io::Error>>(
+async fn run_app_async<B: Backend<Error = io::Error>>(
     terminal: &mut Terminal<B>,
     app: &mut App,
+    data_ready_rx: smol::channel::Receiver<()>,
 ) -> io::Result<bool> {
     loop {
         terminal.draw(|frame| frame.render_widget(&*app, frame.area()))?;
 
-        if let Event::Key(key) = event::read()? {
-            app.handle_key(key);
+        enum EventSource {
+            Key(KeyEvent),
+            Channel,
+            Unhandled,
+            Error(io::Error),
+        }
 
-            if let Some(action) = &app.should_exit {
-                return Ok(action == &ExitAction::PrintSelected);
+        let key_event = async {
+            match event::read() {
+                Ok(Event::Key(key)) => EventSource::Key(key),
+                Ok(_) => EventSource::Unhandled,
+                Err(e) => EventSource::Error(e),
             }
+        };
+
+        let channel_event = async {
+            data_ready_rx.recv().await.ok();
+            EventSource::Channel
+        };
+
+        match future::or(key_event, channel_event).await {
+            EventSource::Key(key) => {
+                app.handle_key(key);
+
+                if let Some(action) = &app.should_exit {
+                    return Ok(action == &ExitAction::PrintSelected);
+                }
+            }
+
+            EventSource::Channel => {
+                // Channel signal received - handle async data arrival
+                // TODO: Implement async data refresh logic
+            }
+
+            EventSource::Unhandled => {}
+
+            EventSource::Error(e) => return Err(e.into()),
         }
     }
 }
