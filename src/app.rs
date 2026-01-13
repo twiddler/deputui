@@ -97,14 +97,14 @@ impl App {
     }
 
     pub fn show_release_notes_of_focused_release(&mut self) {
-        // let release = self.multiselect.focused_value();
-        // self.release_notes = get_release_notes_of(release);
-        let url = "https://example.com";
+        let release = self.multiselect.focused_value();
+        self.release_notes = get_release_notes_of(release);
 
-        self.release_notes = match smol::block_on(get(url)) {
-            Ok(s) => Some(s),
-            Err(e) => Some(format!("--- Error fetching release notes: {e} ---")),
-        };
+        // let url = "https://example.com";
+        // self.release_notes = match smol::block_on(get(url)) {
+        //     Ok(s) => Some(s),
+        //     Err(e) => Some(format!("--- Error fetching release notes: {e} ---")),
+        // };
     }
 
     pub fn scroll_up(&mut self) {
