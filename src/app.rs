@@ -129,7 +129,7 @@ impl App {
 
 fn get_release_notes_of(release: &Release) -> Option<String> {
     match release.to_string().as_str() {
-            "foo@1.0.0" => Some(
+            "foo@1.1.0" => Some(
                 "# Level 1\n\
 \n\
             **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
