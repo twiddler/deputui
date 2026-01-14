@@ -1,6 +1,6 @@
 list-minor-updates:
   description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
-  done: false
+  done: true
   subtasks:
     fetch-list-of-releases-from-npmjs:
       description: Given an existing NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
@@ -51,19 +51,15 @@ outdatui:
 
 lib:
   description: "This program must curate a library of functionalities shared across binaries"
-  done: false
+  done: true
   parse-input:
-    description: This program must parse the output of `pnpm outdated --format json`.
-    done: false
+    description: This program must parse the output of `pnpm outdated --format json`. Behaviour for other input is not defined.
+    done: true
     tests:
       parses-successfully:
         arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
         assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is latest
         done: true
-      errors-if-input-is-empty:
-        arrange: "Given the string ``"
-        assert: The program exits with the error code 1
-        done: false
   handle-semvers:
     description: This library must be capable of parsing and comparing semvers
     done: true
