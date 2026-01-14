@@ -15,6 +15,7 @@ mod app;
 mod app_shell;
 mod async_h1_client;
 mod multi_select;
+mod semver;
 mod tui;
 use crate::app::{App, ExitAction, Release};
 use crate::tui::{restore_terminal, setup_terminal};
