@@ -33,7 +33,7 @@ outdatui:
           description: Given a GitHub repository URL and a semver version, this program must fetch the release notes of the release with that version from that repository URL.
           done: false
           subtasks:
-            github:
+            fetch-release-notes-from-github:
               description: If the repository is hosted on github.com, try to fetch the release notes of the release with the given semver version. If no release with the given semver version exists, try to fetch the release notes of the release with the given semver version, prefixed with 'v'. If neither a release exists for `<semver>` nor `v<semver>`, return something that indicates that no release notes were found. Otherwise, return the successfully fetched release notes.
               done: false
               subtasks:
@@ -41,7 +41,7 @@ outdatui:
                   description: GitHub throttles requests. This app should use a GitHub API token from the environment variables so that GitHub knows who is making the requests and does not throttle them.
                   done: false
 
-            non-github:
+            fetch-release-notes-from-non-github:
               description: If the repository is not hosted on github.com, return something that indicates that currently only GitHub is supported
               done: false
 
