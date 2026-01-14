@@ -7,11 +7,8 @@ use ratatui::{
 };
 use smol::channel::Sender;
 
+use crate::multi_select::{MultiSelect, SelectOption};
 use crate::{app_shell::AppShell, multi_select::MultiSelectView};
-use crate::{
-    async_h1_client::get,
-    multi_select::{MultiSelect, SelectOption},
-};
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
@@ -22,6 +19,7 @@ pub struct App {
     multiselect: MultiSelect<Release>,
     pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
     render_tx: Sender<()>,               // Channel to trigger re-renders from within App
+    left_column_width: u16,
 }
 
 #[derive(PartialEq)]
@@ -57,6 +55,7 @@ impl App {
             focused_pane,
             should_exit: None,
             render_tx,
+            left_column_width: 40,
         };
 
         app.show_release_notes_of_focused_release();
@@ -85,6 +84,8 @@ impl App {
                     self.multiselect.next();
                     self.show_release_notes_of_focused_release();
                 }
+                KeyCode::Char('-') => self.shrink_left_column(),
+                KeyCode::Char('+') => self.expand_left_column(),
                 KeyCode::Char(' ') => self.multiselect.toggle(),
                 KeyCode::Enter => self.should_exit = Some(ExitAction::PrintSelected),
                 _ => {}
@@ -124,6 +125,14 @@ impl App {
 
     pub fn get_selected_releases(&self) -> Vec<&Release> {
         self.multiselect.selected_values()
+    }
+
+    pub fn shrink_left_column(&mut self) {
+        self.left_column_width = self.left_column_width.saturating_sub(1);
+    }
+
+    pub fn expand_left_column(&mut self) {
+        self.left_column_width = self.left_column_width.saturating_add(1);
     }
 }
 
@@ -184,6 +193,7 @@ impl Widget for &App {
             },
             right: release_notes,
             footer: keys_hints,
+            left_column_width: self.left_column_width,
         }
         .render(area, buf);
     }
@@ -192,7 +202,7 @@ impl Widget for &App {
 fn get_keys_hints(pane: &Pane) -> &'static str {
     match pane {
         Pane::Releases => {
-            "down: j | up: k | focus release notes: l | toggle: ␣ | confirm: ⏎ | abort: ctrl+c"
+            "down: j | up: k | focus release notes: l | toggle: ␣ | confirm: ⏎ | abort: ctrl+c | +: grow | -: shrink"
         }
         Pane::ReleaseNotes => "down: j | up: k | focus releases: h | abort: ctrl+c",
     }

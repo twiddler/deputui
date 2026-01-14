@@ -7,6 +7,7 @@ pub struct AppShell<L, R, F> {
     pub left: L,
     pub right: R,
     pub footer: F,
+    pub left_column_width: u16,
 }
 
 impl<L: Widget, R: Widget, F: Widget> Widget for AppShell<L, R, F> {
@@ -26,7 +27,10 @@ impl<L: Widget, R: Widget, F: Widget> Widget for AppShell<L, R, F> {
 
         let column_chunks = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Length(40), Constraint::Min(1)])
+            .constraints([
+                Constraint::Length(self.left_column_width),
+                Constraint::Min(1),
+            ])
             .split(main_chunk);
 
         let left_column = column_chunks[0];
