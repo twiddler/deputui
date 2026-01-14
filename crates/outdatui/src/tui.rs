@@ -1,13 +1,13 @@
 use std::{error::Error, io::Stderr};
 
 use ratatui::{
-    Terminal,
     crossterm::{
         event::{DisableMouseCapture, EnableMouseCapture},
         execute,
-        terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     },
     prelude::CrosstermBackend,
+    Terminal,
 };
 
 type Tui = Terminal<CrosstermBackend<Stderr>>;

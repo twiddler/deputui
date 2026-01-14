@@ -9,6 +9,7 @@ use smol::channel::Sender;
 
 use crate::multi_select::{MultiSelect, SelectOption};
 use crate::{app_shell::AppShell, multi_select::MultiSelectView};
+use common::release::Release;
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
@@ -214,33 +215,4 @@ fn get_block(focused: bool) -> Block<'static> {
         .border_type(BorderType::Rounded)
         .border_style(get_style(focused))
         .style(Style::default())
-}
-
-// Release
-//
-#[derive(Clone, Eq, PartialEq)]
-pub struct Release {
-    pub package: String,
-    pub semver: String,
-}
-
-impl ToString for Release {
-    fn to_string(&self) -> String {
-        format!("{}@{}", self.package, self.semver)
-    }
-}
-
-impl Ord for Release {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match self.package.cmp(&other.package) {
-            std::cmp::Ordering::Equal => self.semver.cmp(&other.semver),
-            other => other,
-        }
-    }
-}
-
-impl PartialOrd for Release {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
 }

@@ -1,36 +1,24 @@
-use futures::future::try_join_all;
 use ratatui::{
-    Terminal,
     backend::Backend,
     crossterm::event::{self, Event, KeyEvent},
+    Terminal,
 };
-use smol::{Executor, block_on, channel, future};
+use smol::{block_on, channel, future, Executor};
 use std::{
     error::Error,
-    io::{self},
+    io::{self, Read},
 };
 
 mod app;
 mod app_shell;
-mod async_h1_client;
 mod multi_select;
-mod npm_registry;
-mod pnpm;
-mod semver;
 mod tui;
-use crate::npm_registry::NpmPackage;
-use crate::pnpm::PnpmOutdatedOutput;
-use crate::semver::Semver;
+use crate::app::{App, ExitAction};
 use crate::tui::{restore_terminal, setup_terminal};
-use crate::{
-    app::{App, ExitAction, Release},
-    pnpm::parse_input,
-};
+use common::release::Release;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let parsed = parse_input()?;
-
-    let mut releases: Vec<Release> = block_on(fetch_all_releases(parsed))?;
+    let mut releases: Vec<Release> = parse_json_input()?;
 
     releases.sort();
 
@@ -66,25 +54,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn fetch_all_releases(parsed: PnpmOutdatedOutput) -> Result<Vec<Release>, Box<dyn Error>> {
-    let package_futures: Vec<_> = parsed
-        .into_iter()
-        .map(async |(package_name, package_info)| {
-            let npm_package = NpmPackage::fetch(&package_name).await?;
-            let current: Semver = package_info.current.parse()?;
-            let latest: Semver = package_info.latest.parse()?;
-            let releases = npm_package.fetch_releases(current, latest).await?;
-            Ok::<Vec<app::Release>, Box<dyn Error>>(releases)
-        })
-        .collect();
-
-    let all_releases: Vec<Release> = try_join_all(package_futures)
-        .await?
-        .into_iter()
-        .flatten()
-        .collect();
-
-    Ok::<Vec<Release>, Box<dyn Error>>(all_releases)
+fn parse_json_input() -> Result<Vec<Release>, Box<dyn Error>> {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input)?;
+    Ok(serde_json::from_str(&input)?)
 }
 
 async fn run_app_async<B: Backend<Error = io::Error>>(

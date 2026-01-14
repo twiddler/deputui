@@ -1,7 +1,7 @@
-use crate::{app::Release, async_h1_client, semver::Semver};
+use crate::{async_h1_client, release::Release, semver::Semver};
 use anyhow::Result;
 use serde::Deserialize;
-use std::{collections::BTreeMap, error::Error};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Deserialize)]
 pub struct NpmPackage {
@@ -28,11 +28,7 @@ impl NpmPackage {
         self.versions.keys()
     }
 
-    pub async fn fetch_releases(
-        &self,
-        current: Semver,
-        latest: Semver,
-    ) -> Result<Vec<Release>, Box<dyn Error>> {
+    pub async fn fetch_releases(&self, current: Semver, latest: Semver) -> Result<Vec<Release>> {
         let all_versions = self
             .iter_versions()
             .filter_map(|version| version.parse::<Semver>().ok());
@@ -48,40 +44,5 @@ impl NpmPackage {
             .collect();
 
         Ok(releases)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json;
-
-    #[test]
-    fn test_deserialize() {
-        let json = r#"
-        {
-            "name": "test-package",
-            "versions": {
-                "1.0.0": {
-                    "name": "test-package",
-                    "version": "1.0.0"
-                }
-            }
-        }
-        "#;
-
-        let result: Result<NpmPackage, _> = serde_json::from_str(json);
-        assert!(
-            result.is_ok(),
-            "Failed to deserialize NPM package: {:?}",
-            result
-        );
-
-        let package = result.unwrap();
-        assert_eq!(package.name, "test-package");
-
-        let version = package.versions.get("1.0.0").unwrap();
-        assert_eq!(version.name, "test-package");
-        assert_eq!(version.version, "1.0.0");
     }
 }

@@ -1,44 +1,15 @@
-root:
-  description: This program assists with reviewing and installing minor version updates of outdated NPM dependencies. It shows which minor version updates are available, fetches release notes, allows to select which releases should be installed, and prints them to stdout when the user confirms their selection.
+list-minor-updates:
+  description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
   done: false
   subtasks:
-    parse-input:
-      description: This program must parse the output of `pnpm outdated`.
-      done: false
-      tests:
-        parses-successfully:
-          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
-          assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is latest
-          done: true
-        errors-if-input-is-empty:
-          arrange: "Given the string ``"
-          assert: The program exits with the error code 1
-          done: false
-
-    fetch-newer-minor-releases:
-      description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
+    fetch-list-of-releases-from-npmjs:
+      description: Given an existing NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
       done: true
-      subtasks:
-        handle-semvers:
-          description: This program must be capable of parsing and comparing semvers
-          done: true
-          tests:
-            parsing:
-              arrange: Given a semver as a string (as returned from npm.js for example)
-              assert: Parses the string to a Semver struct
-              done: true
-            comparing:
-              arrange: Given two Semver struct instances
-              assert: Determines which of the one is greater or whether both are equal
-              done: true
-            filter-minor-versions:
-              arrange: Given a list of semvers and a current semver
-              assert: The result of this function includes all and only minor version updates for the current version
-              done: true
-        fetch-list-of-releases-from-npmjs:
-          description: Given an existing NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
-          done: true
 
+outdatui:
+  description: This program must assist with reviewing and installing version updates of outdated NPM dependencies. It must parse the output of `pnpm outdated --format json`. It shows version updates available, fetches release notes, allows to select which releases should be installed, and prints them to stdout when the user confirms their selection.
+  done: false
+  subtasks:
     render-releases:
       description: The program must render the newer minor releases in a list which allows focusing and selecting releases
       done: true
@@ -77,3 +48,35 @@ root:
             fetch-repository-url:
               description: Given a package name, this program must determine the corresponding repository URL by querying the npm.js registry. (This feature is not user-facing; we need it for the other features to work.)
               done: false
+
+lib:
+  description: "This program must curate a library of functionalities shared across binaries"
+  done: false
+  parse-input:
+    description: This program must parse the output of `pnpm outdated --format json`.
+    done: false
+    tests:
+      parses-successfully:
+        arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
+        assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is latest
+        done: true
+      errors-if-input-is-empty:
+        arrange: "Given the string ``"
+        assert: The program exits with the error code 1
+        done: false
+  handle-semvers:
+    description: This library must be capable of parsing and comparing semvers
+    done: true
+    tests:
+      parsing:
+        arrange: Given a semver as a string
+        assert: Parses the string to a Semver struct
+        done: true
+      comparing:
+        arrange: Given two Semver struct instances
+        assert: Determines which of the one is greater or whether both are equal
+        done: true
+      filter-minor-versions:
+        arrange: Given a list of semvers and a current semver
+        assert: The result of this function includes all and only minor version updates for the current version
+        done: true

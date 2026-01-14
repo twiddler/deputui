@@ -1,0 +1,19 @@
+[package]
+name = "outdatui"
+version = "0.1.0"
+edition = "2021"
+description = "TUI for reviewing NPM minor version updates"
+license = "MIT"
+
+[[bin]]
+name = "outdatui"
+path = "src/main.rs"
+
+[dependencies]
+futures = "0.3.31"
+ratatui = "0.30.0"
+serde_json = "1.0.140"
+smol = "2.0.2"
+tui-markdown = "0.3.7"
+
+common = { path = "../common" }

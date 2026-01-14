@@ -494,6 +494,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-h1",
+ "async-native-tls",
+ "http-types",
+ "serde",
+ "serde_json",
+ "smol",
+ "url",
+]
+
+[[package]]
 name = "compact_str"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1763,20 +1777,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "outdatui"
+name = "outdat-list"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "async-h1",
- "async-native-tls",
+ "common",
  "futures",
- "http-types",
- "ratatui",
  "serde",
  "serde_json",
  "smol",
+]
+
+[[package]]
+name = "outdatui"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "futures",
+ "ratatui",
+ "serde_json",
+ "smol",
  "tui-markdown",
- "url",
 ]
 
 [[package]]

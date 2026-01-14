@@ -1,16 +1,10 @@
 //! An HTTP+TLS client based on `async-h1` and `async-native-tls`.
-//!
-//! Run with:
-//!
-//! ```
-//! cargo run --example async-h1-client
-//! ```
 
 use std::net::{TcpStream, ToSocketAddrs};
 
-use anyhow::{Context as _, Error, Result, bail};
+use anyhow::{bail, Context as _, Error, Result};
 use http_types::{Method, Request, Response};
-use smol::{Async, prelude::*};
+use smol::{prelude::*, Async};
 use url::Url;
 
 /// Sends a request and fetches the response.
