@@ -7,8 +7,8 @@ root:
       done: false
       tests:
         parses-successfully:
-          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "wanted": "1.1.0" }}`'
-          assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is wanted
+          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
+          assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is latest
           done: true
         errors-if-input-is-empty:
           arrange: "Given the string ``"
@@ -17,7 +17,7 @@ root:
 
     fetch-newer-minor-releases:
       description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
-      done: false
+      done: true
       subtasks:
         handle-semvers:
           description: This program must be capable of parsing and comparing semvers
@@ -36,8 +36,8 @@ root:
               assert: The result of this function includes all and only minor version updates for the current version
               done: true
         fetch-list-of-releases-from-npmjs:
-          description: Given an NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
-          done: false
+          description: Given an existing NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
+          done: true
 
     render-releases:
       description: The program must render the newer minor releases in a list which allows focusing and selecting releases

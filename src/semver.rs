@@ -58,6 +58,12 @@ impl std::str::FromStr for Semver {
     }
 }
 
+impl fmt::Display for Semver {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+    }
+}
+
 impl Semver {
     pub fn is_minor_update_of(&self, other: &Semver) -> bool {
         self.major == other.major && self.minor > other.minor && self.patch == 0
@@ -66,20 +72,6 @@ impl Semver {
     pub fn is_at_most(&self, max: &Semver) -> bool {
         self <= max
     }
-}
-
-pub fn filter_minor_updates(
-    all_versions: &[Semver],
-    current_version: &Semver,
-    wanted_version: &Semver,
-) -> Vec<Semver> {
-    all_versions
-        .iter()
-        .filter(|version| {
-            version.is_minor_update_of(current_version) && version.is_at_most(wanted_version)
-        })
-        .copied()
-        .collect()
 }
 
 #[cfg(test)]
@@ -251,68 +243,6 @@ mod tests {
         assert_eq!(
             result.unwrap_err(),
             SemverParsingError::InvalidNumber("patch")
-        );
-    }
-
-    #[test]
-    fn test_filter_minor_updates() {
-        let all_versions = vec![
-            Semver {
-                major: 1,
-                minor: 0,
-                patch: 0,
-            },
-            Semver {
-                major: 1,
-                minor: 0,
-                patch: 1,
-            },
-            Semver {
-                major: 1,
-                minor: 1,
-                patch: 0,
-            },
-            Semver {
-                major: 1,
-                minor: 1,
-                patch: 1,
-            },
-            Semver {
-                major: 1,
-                minor: 2,
-                patch: 0,
-            },
-            Semver {
-                major: 2,
-                minor: 0,
-                patch: 0,
-            },
-        ];
-        let current = Semver {
-            major: 1,
-            minor: 0,
-            patch: 0,
-        };
-        let wanted = Semver {
-            major: 1,
-            minor: 2,
-            patch: 0,
-        };
-        let result = filter_minor_updates(&all_versions, &current, &wanted);
-        assert_eq!(
-            result,
-            vec![
-                Semver {
-                    major: 1,
-                    minor: 1,
-                    patch: 0
-                },
-                Semver {
-                    major: 1,
-                    minor: 2,
-                    patch: 0
-                },
-            ]
         );
     }
 }
