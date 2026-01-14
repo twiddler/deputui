@@ -18,18 +18,25 @@ root:
     fetch-newer-minor-releases:
       description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
       done: false
-      tests:
-        includes-minor-versions:
-          arrange: Given the mocked response of npm.js
-          assert: The result of this function includes all minor version updates for the current version
-          done: false
-        does-not-include-patch-versions:
-          arrange: Given the mocked response of npm.js
-          assert: The result of this function did not include patch version updates
-          done: false
-        does-not-include-major-versions:
-          arrange: Given the mocked response of npm.js
-          assert: The result of this function did not include major version updates
+      subtasks:
+        handle-semvers:
+          description: This program must be capable of parsing and comparing semvers
+          done: true
+          tests:
+            parsing:
+              arrange: Given a semver as a string (as returned from npm.js for example)
+              assert: Parses the string to a Semver struct
+              done: true
+            comparing:
+              arrange: Given two Semver struct instances
+              assert: Determines which of the one is greater or whether both are equal
+              done: true
+            filter-minor-versions:
+              arrange: Given a list of semvers and a current semver
+              assert: The result of this function includes all and only minor version updates for the current version
+              done: true
+        fetch-list-of-releases-from-npmjs:
+          description: Given an NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
           done: false
 
     render-releases:
