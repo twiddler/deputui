@@ -26,7 +26,7 @@ outdatui:
       done: true
 
     show-release-notes:
-      description: Given an NPM package name and a version of that package, this program must display the corresponding release notes.
+      description: Given a repository URL and a version tag, this program must display the corresponding release notes.
       done: false
       subtasks:
         fetch-release-notes:
@@ -35,18 +35,14 @@ outdatui:
           subtasks:
             fetch-release-notes-from-github:
               description: If the repository is hosted on github.com, try to fetch the release notes of the release with the given semver version. If no release with the given semver version exists, try to fetch the release notes of the release with the given semver version, prefixed with 'v'. If neither a release exists for `<semver>` nor `v<semver>`, return something that indicates that no release notes were found. Otherwise, return the successfully fetched release notes.
-              done: false
+              done: true
               subtasks:
                 authorize-with-api-token:
                   description: GitHub throttles requests. This app should use a GitHub API token from the environment variables so that GitHub knows who is making the requests and does not throttle them.
-                  done: false
+                  done: true
 
             fetch-release-notes-from-non-github:
               description: If the repository is not hosted on github.com, return something that indicates that currently only GitHub is supported
-              done: false
-
-            fetch-repository-url:
-              description: Given a package name, this program must determine the corresponding repository URL by querying the npm.js registry. (This feature is not user-facing; we need it for the other features to work.)
               done: false
 
 lib:

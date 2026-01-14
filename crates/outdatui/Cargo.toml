@@ -10,10 +10,14 @@ name = "outdatui"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1.0.100"
 futures = "0.3.31"
+http-types = "2.12.0"
 ratatui = "0.30.0"
+serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 smol = "2.0.2"
 tui-markdown = "0.3.7"
+url = "2.5.8"
 
 common = { path = "../common" }

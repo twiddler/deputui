@@ -11,6 +11,7 @@ use std::{
 
 mod app;
 mod app_shell;
+mod github;
 mod multi_select;
 mod tui;
 use crate::app::{App, ExitAction};

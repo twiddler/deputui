@@ -1,0 +1,24 @@
+# Implementation Plan for fetch-release-notes-from-github
+
+- [x] Create GitHub API module
+  - Add `github.rs` module to `crates/outdatui/src/`
+- [x] Parse URLs
+  - Parse GitHub repository URL to extract owner and repo
+  - Automatically test with a valid https://github.com URL and an invalid https://foo.bar URL.
+  - Tests pass
+- [x] Response structure
+  - Research GitHub API docs for response formats
+  - curl an example repository, e.g. `mantinedev/mantine` and see whether the response matches the expectation
+  - Add GitHub API response data structures with `serde_json`
+- [x] Basic release fetching (without authentication)
+  - Implement basic HTTP client using existing `async_h1_client` pattern
+  - Try to fetch release 8.3.12 from `mantinedev/mantine`
+  - GitHub responds with data that matches the response data structures we defined earlier
+- [x] Basic release fetching (without authentication)
+  - Adapt the function that fetches releases to fall back to fetching the release tagged with "v" prefix (e.g., "v1.2.3")
+  - Try to fetch release v19.1.4 from `facebook/react`
+  - GitHub responds with data that matches the response data structures we defined earlier
+- [x] Add authentication (for rate limiting)
+  - Read API token from `OUTDATUI_GITHUB_TOKEN` environment variable
+  - Set proper Authorization header when token is available
+  - Provide appropriate user-agent string

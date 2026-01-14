@@ -8,7 +8,7 @@ use smol::{prelude::*, Async};
 use url::Url;
 
 /// Sends a request and fetches the response.
-async fn fetch(req: Request) -> Result<Response> {
+pub async fn fetch(req: Request) -> Result<Response> {
     // Figure out the host and the port.
     let host = req.url().host().context("cannot parse host")?.to_string();
     let port = req

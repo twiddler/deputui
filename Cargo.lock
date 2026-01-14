@@ -1792,12 +1792,16 @@ dependencies = [
 name = "outdatui"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "common",
  "futures",
+ "http-types",
  "ratatui",
+ "serde",
  "serde_json",
  "smol",
  "tui-markdown",
+ "url",
 ]
 
 [[package]]
