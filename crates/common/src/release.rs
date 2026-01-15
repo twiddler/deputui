@@ -2,6 +2,7 @@
 pub struct Release {
     pub package: String,
     pub semver: String,
+    pub repository_url: String,
 }
 
 impl ToString for Release {

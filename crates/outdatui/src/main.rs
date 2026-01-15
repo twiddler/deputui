@@ -13,6 +13,7 @@ mod app;
 mod app_shell;
 mod github;
 mod multi_select;
+mod release_notes;
 mod tui;
 use crate::app::{App, ExitAction};
 use crate::tui::{restore_terminal, setup_terminal};

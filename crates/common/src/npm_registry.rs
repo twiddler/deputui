@@ -4,8 +4,15 @@ use serde::Deserialize;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Deserialize)]
+pub struct Repository {
+    pub url: String,
+    pub r#type: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct NpmPackage {
     pub name: String,
+    pub repository: Repository,
     pub versions: BTreeMap<String, NpmVersion>,
 }
 
@@ -13,6 +20,7 @@ pub struct NpmPackage {
 pub struct NpmVersion {
     pub name: String,
     pub version: String,
+    pub repository: Repository,
 }
 
 impl NpmPackage {
@@ -40,6 +48,7 @@ impl NpmPackage {
             .map(|semver| Release {
                 package: self.name.clone(),
                 semver: semver.to_string(),
+                repository_url: self.repository.url.clone(),
             })
             .collect();
 
