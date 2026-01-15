@@ -137,6 +137,26 @@ impl App {
     }
 }
 
+/// Convert markdown text to an owned Text struct.
+///
+/// tui_markdown::from_str returns a Text that borrows from the input string, which causes lifetime issues when the input is a local variable in a match expression. This function converts the borrowed Text to an owned one by copying all the span content to owned strings. Takes ownership of the input string to avoid lifetime issues.
+fn owned_markdown_text(markdown: String) -> Text<'static> {
+    let markdown_text = tui_markdown::from_str(&markdown);
+    let owned_lines: Vec<Line> = markdown_text
+        .lines
+        .iter()
+        .map(|line| {
+            let owned_spans: Vec<ratatui::text::Span> = line
+                .spans
+                .iter()
+                .map(|span| ratatui::text::Span::styled(span.content.to_string(), span.style))
+                .collect();
+            Line::from(owned_spans)
+        })
+        .collect();
+    Text::from(owned_lines)
+}
+
 fn get_style(focused: bool) -> Style {
     match focused {
         true => Style::default(),
@@ -152,10 +172,7 @@ impl Widget for &App {
             AsyncTaskStatus::Loading => {
                 Text::styled("--- Loading release notes... ---", Color::Gray)
             }
-            AsyncTaskStatus::Loaded(notes) => {
-                // For now, use plain text instead of markdown to avoid lifetime issues
-                Text::raw(notes)
-            }
+            AsyncTaskStatus::Loaded(notes) => owned_markdown_text(notes.clone()),
             AsyncTaskStatus::Error(error) => {
                 Text::styled(format!("--- Error: {} ---", error), Color::Red)
             }
