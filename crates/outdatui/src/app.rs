@@ -1,5 +1,5 @@
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
-    crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     layout::Rect,
     style::{Color, Style},
     text::{Line, Text},
@@ -9,7 +9,9 @@ use smol::channel::Sender;
 
 use crate::async_task::{AsyncTaskRunner, AsyncTaskStatus};
 use crate::multi_select::{MultiSelect, SelectOption};
-use crate::{app_shell::AppShell, multi_select::MultiSelectView, release_ext::ReleaseExt};
+use crate::{
+    app_shell::AppShell, multi_select::MultiSelectView, release_ext::ReleaseExt, UiMessage,
+};
 use common::release::Release;
 
 const SCROLL_STEP_SIZE: u16 = 5;
@@ -36,7 +38,7 @@ pub enum ExitAction {
 }
 
 impl App {
-    pub fn new(releases: &[Release], render_tx: Sender<()>) -> App {
+    pub fn new(releases: &[Release], ui_tx: Sender<UiMessage>) -> App {
         let focused_pane = Pane::Releases;
 
         let options = releases
@@ -49,7 +51,7 @@ impl App {
             })
             .collect();
 
-        let release_notes_runner = AsyncTaskRunner::new(render_tx);
+        let release_notes_runner = AsyncTaskRunner::new(ui_tx.clone());
 
         let mut app = App {
             scroll: 0,

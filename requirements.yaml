@@ -45,6 +45,10 @@ outdatui:
               description: If the repository is not hosted on github.com, return something that indicates that currently only GitHub is supported
               done: true
 
+    responsivesness:
+      description: This program must handle fetching data and receiving keyboard input in parallel, i.e. fetching data should not make the UI unresponsive, nor should keyboard strokes delay fetching data
+      done: false
+
 lib:
   description: "This program must curate a library of functionalities shared across binaries"
   done: true

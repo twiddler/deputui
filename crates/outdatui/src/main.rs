@@ -1,9 +1,7 @@
-use ratatui::{
-    backend::Backend,
-    crossterm::event::{self, Event, KeyEvent},
-    Terminal,
-};
-use smol::{block_on, channel, future, Executor};
+use crossterm::event::{Event, EventStream, KeyEvent};
+use futures::StreamExt;
+use ratatui::{backend::Backend, Terminal};
+use smol::{block_on, channel, Executor};
 use std::{
     error::Error,
     io::{self, Read},
@@ -20,6 +18,12 @@ use crate::app::{App, ExitAction};
 use crate::tui::{restore_terminal, setup_terminal};
 use common::release::Release;
 
+#[derive(Debug)]
+pub enum UiMessage {
+    Key(KeyEvent),
+    TaskComplete,
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let mut releases: Vec<Release> = parse_json_input()?;
 
@@ -27,14 +31,35 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut terminal = setup_terminal()?;
 
-    // Create channel for render triggers
-    let (data_ready_tx, data_ready_rx) = channel::bounded::<()>(1);
+    // Create unified event channel
+    let (ui_tx, ui_rx) = channel::unbounded::<UiMessage>();
 
-    let mut app = App::new(&releases, data_ready_tx);
+    // Spawn keyboard event reader task that sends through unified channel
+    let keyboard_ui_tx = ui_tx.clone();
+    smol::spawn(async move {
+        let mut reader = EventStream::new();
+        while let Some(result) = reader.next().await {
+            match result {
+                Ok(Event::Key(key)) => {
+                    keyboard_ui_tx.send(UiMessage::Key(key)).await.ok();
+                }
+                Ok(_) => {
+                    // Ignore non-key events
+                }
+                Err(_) => {
+                    // Stream error, break the loop
+                    break;
+                }
+            }
+        }
+    })
+    .detach();
+
+    let mut app = App::new(&releases, ui_tx);
     let res = block_on(async {
         let executor = Executor::new();
         executor
-            .run(run_app_async(&mut terminal, &mut app, data_ready_rx))
+            .run(run_app_async(&mut terminal, &mut app, ui_rx))
             .await
     });
 
@@ -66,33 +91,13 @@ fn parse_json_input() -> Result<Vec<Release>, Box<dyn Error>> {
 async fn run_app_async<B: Backend<Error = io::Error>>(
     terminal: &mut Terminal<B>,
     app: &mut App,
-    data_ready_rx: smol::channel::Receiver<()>,
+    ui_rx: smol::channel::Receiver<UiMessage>,
 ) -> io::Result<bool> {
     loop {
         terminal.draw(|frame| frame.render_widget(&*app, frame.area()))?;
 
-        enum EventSource {
-            Key(KeyEvent),
-            Channel,
-            Unhandled,
-            Error(io::Error),
-        }
-
-        let key_event = async {
-            match event::read() {
-                Ok(Event::Key(key)) => EventSource::Key(key),
-                Ok(_) => EventSource::Unhandled,
-                Err(e) => EventSource::Error(e),
-            }
-        };
-
-        let channel_event = async {
-            data_ready_rx.recv().await.ok();
-            EventSource::Channel
-        };
-
-        match future::or(key_event, channel_event).await {
-            EventSource::Key(key) => {
+        match ui_rx.recv().await {
+            Ok(UiMessage::Key(key)) => {
                 app.handle_key(key);
 
                 if let Some(action) = &app.should_exit {
@@ -100,14 +105,18 @@ async fn run_app_async<B: Backend<Error = io::Error>>(
                 }
             }
 
-            EventSource::Channel => {
-                // Channel signal received - task completion notification
+            Ok(UiMessage::TaskComplete) => {
+                // Task completion notification received
                 // The next loop iteration will re-render with updated state
             }
 
-            EventSource::Unhandled => {}
-
-            EventSource::Error(e) => return Err(e.into()),
+            Err(_) => {
+                // Channel closed, exit with error
+                return Err(io::Error::new(
+                    io::ErrorKind::BrokenPipe,
+                    "UI channel closed",
+                ));
+            }
         }
     }
 }

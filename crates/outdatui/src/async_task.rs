@@ -2,16 +2,18 @@ use smol::channel::Sender;
 use std::future::Future;
 use std::sync::{Arc, Mutex};
 
+use crate::UiMessage;
+
 pub struct AsyncTaskRunner<T> {
     status: Arc<Mutex<AsyncTaskStatus<T>>>,
-    notify_subscribers: Sender<()>,
+    notify_subscribers: Sender<UiMessage>,
 }
 
 impl<T> AsyncTaskRunner<T>
 where
     T: Send + Clone + 'static,
 {
-    pub fn new(notify_subscribers: Sender<()>) -> Self {
+    pub fn new(notify_subscribers: Sender<UiMessage>) -> Self {
         Self {
             status: Arc::new(Mutex::new(AsyncTaskStatus::Idle)),
             notify_subscribers,
@@ -40,7 +42,9 @@ where
                 *status = new_status;
             }
 
-            notify_subscribers_clone.try_send(()).ok();
+            notify_subscribers_clone
+                .try_send(UiMessage::TaskComplete)
+                .ok();
         })
         .detach();
     }
@@ -55,7 +59,9 @@ where
             *status = new_status;
         }
 
-        self.notify_subscribers.try_send(()).ok();
+        self.notify_subscribers
+            .try_send(UiMessage::TaskComplete)
+            .ok();
     }
 }
 
@@ -74,14 +80,14 @@ mod tests {
 
     #[test]
     fn test_async_task_initial_state() {
-        let (tx, _rx) = channel::bounded::<()>(1);
+        let (tx, _rx) = channel::bounded::<UiMessage>(1);
         let runner = AsyncTaskRunner::<String>::new(tx);
         assert_eq!(runner.status(), AsyncTaskStatus::Idle);
     }
 
     #[test]
     fn test_async_task_success_operation() {
-        let (tx, rx) = channel::bounded::<()>(1);
+        let (tx, rx) = channel::bounded::<UiMessage>(1);
         let runner = AsyncTaskRunner::<String>::new(tx);
 
         runner.start_operation(async { Ok("test_input".to_string()) });
@@ -100,7 +106,7 @@ mod tests {
 
     #[test]
     fn test_async_task_error_operation() {
-        let (tx, rx) = channel::bounded::<()>(1);
+        let (tx, rx) = channel::bounded::<UiMessage>(1);
         let runner = AsyncTaskRunner::<String>::new(tx);
 
         runner.start_operation(async { Err(anyhow::anyhow!("test error")) });
@@ -119,7 +125,7 @@ mod tests {
 
     #[test]
     fn test_multiple_operations_rapid_succession() {
-        let (tx, rx) = channel::bounded::<()>(1);
+        let (tx, rx) = channel::bounded::<UiMessage>(1);
         let runner = AsyncTaskRunner::<String>::new(tx);
 
         // Start multiple operations rapidly
@@ -149,7 +155,7 @@ mod tests {
 
     #[test]
     fn test_multiple_operations_mixed_success_error() {
-        let (tx, rx) = channel::bounded::<()>(1);
+        let (tx, rx) = channel::bounded::<UiMessage>(1);
         let runner = AsyncTaskRunner::<String>::new(tx);
 
         // Start with a successful operation
