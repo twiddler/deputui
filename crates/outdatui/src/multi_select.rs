@@ -114,7 +114,7 @@ fn create_option_item<'a>(label: &'a str, selected: bool, indicator: Span<'a>) -
         Span::styled("[", Style::default().fg(Color::DarkGray)),
         Span::styled(
             if selected { "x" } else { " " },
-            Style::default().fg(Color::Cyan),
+            Style::default().fg(Color::Green),
         ),
         Span::styled("]", Style::default().fg(Color::DarkGray)),
         Span::raw(format!(" {: <25}", label)),
