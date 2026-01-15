@@ -7,7 +7,7 @@ use ratatui::{
 };
 use smol::channel::Sender;
 
-use crate::async_task::{AsyncTask, AsyncTaskStatus};
+use crate::async_task::{AsyncTaskRunner, AsyncTaskStatus};
 use crate::multi_select::{MultiSelect, SelectOption};
 use crate::{app_shell::AppShell, multi_select::MultiSelectView, release_ext::ReleaseExt};
 use common::release::Release;
@@ -20,7 +20,7 @@ pub struct App {
     multiselect: MultiSelect<Release>,
     pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
     left_column_width: u16,
-    release_notes_task: AsyncTask<String, Release>,
+    release_notes_runner: AsyncTaskRunner<String>,
 }
 
 #[derive(PartialEq)]
@@ -49,12 +49,7 @@ impl App {
             })
             .collect();
 
-        let release_notes_task = AsyncTask::new(
-            |release: Release| {
-                smol::block_on(async move { ReleaseExt(&release).fetch_release_notes().await })
-            },
-            render_tx.clone(),
-        );
+        let release_notes_runner = AsyncTaskRunner::new(render_tx);
 
         let mut app = App {
             scroll: 0,
@@ -62,7 +57,7 @@ impl App {
             focused_pane,
             should_exit: None,
             left_column_width: 40,
-            release_notes_task,
+            release_notes_runner,
         };
 
         app.show_release_notes_of_focused_release();
@@ -108,8 +103,11 @@ impl App {
     }
 
     pub fn show_release_notes_of_focused_release(&mut self) {
-        let release = self.multiselect.focused_value();
-        self.release_notes_task.start_operation(release.clone());
+        let release = self.multiselect.focused_value().clone();
+
+        // This (or some descendant of it) causes the sluggishness:
+        self.release_notes_runner
+            .start_operation(async move { ReleaseExt(&release).fetch_release_notes().await });
     }
 
     pub fn scroll_up(&mut self) {
@@ -146,7 +144,7 @@ fn get_style(focused: bool) -> Style {
 
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
-        let task_status = self.release_notes_task.status();
+        let task_status = self.release_notes_runner.status();
         let release_notes_text = match task_status {
             AsyncTaskStatus::Idle => Text::styled("--- No release notes ---", Color::Yellow),
             AsyncTaskStatus::Loading => {

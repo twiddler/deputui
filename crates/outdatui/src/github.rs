@@ -73,7 +73,7 @@ impl GitHubRepo {
     }
 
     pub async fn fetch_release_by_version(&self, version: &str) -> Result<GitHubRelease> {
-        let tags_to_try = vec![format!("v{}", version), version.to_string()];
+        let tags_to_try = vec![version.to_string(), format!("v{}", version)];
 
         for tag in tags_to_try {
             match self.fetch_release(&tag).await {

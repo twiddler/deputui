@@ -8,7 +8,7 @@ list-minor-updates:
 
 outdatui:
   description: This program must assist with reviewing and installing version updates of outdated NPM dependencies. It must parse the output of `pnpm outdated --format json`. It shows version updates available, fetches release notes, allows to select which releases should be installed, and prints them to stdout when the user confirms their selection.
-  done: false
+  done: true
   subtasks:
     render-releases:
       description: The program must render the newer minor releases in a list which allows focusing and selecting releases
@@ -27,7 +27,7 @@ outdatui:
 
     show-release-notes:
       description: Given a repository URL and a version tag, this program must display the corresponding release notes.
-      done: false
+      done: true
       subtasks:
         fetch-release-notes:
           description: Given a GitHub repository URL and a semver version, this program must fetch the release notes of the release with that version from that repository URL.
