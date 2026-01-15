@@ -11,9 +11,10 @@ use std::{
 
 mod app;
 mod app_shell;
+mod async_task;
 mod github;
 mod multi_select;
-mod release_notes;
+mod release_ext;
 mod tui;
 use crate::app::{App, ExitAction};
 use crate::tui::{restore_terminal, setup_terminal};
@@ -27,9 +28,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = setup_terminal()?;
 
     // Create channel for render triggers
-    let (_data_ready_tx, data_ready_rx) = channel::bounded::<()>(1);
+    let (data_ready_tx, data_ready_rx) = channel::bounded::<()>(1);
 
-    let mut app = App::new(&releases, _data_ready_tx);
+    let mut app = App::new(&releases, data_ready_tx);
     let res = block_on(async {
         let executor = Executor::new();
         executor
@@ -100,8 +101,8 @@ async fn run_app_async<B: Backend<Error = io::Error>>(
             }
 
             EventSource::Channel => {
-                // Channel signal received - handle async data arrival
-                // TODO: Implement async data refresh logic
+                // Channel signal received - task completion notification
+                // The next loop iteration will re-render with updated state
             }
 
             EventSource::Unhandled => {}

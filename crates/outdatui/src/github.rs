@@ -72,17 +72,17 @@ impl GitHubRepo {
             .map_err(|e| anyhow!("Failed to parse GitHub API response: {}", e))
     }
 
-    pub async fn fetch_release_by_version(&self, version: &str) -> Result<Option<GitHubRelease>> {
+    pub async fn fetch_release_by_version(&self, version: &str) -> Result<GitHubRelease> {
         let tags_to_try = vec![format!("v{}", version), version.to_string()];
 
         for tag in tags_to_try {
             match self.fetch_release(&tag).await {
-                Ok(release) => return Ok(Some(release)),
+                Ok(release) => return Ok(release),
                 Err(_) => continue, // Try next tag format
             }
         }
 
-        Ok(None) // No release found
+        bail!("No release found")
     }
 }
 

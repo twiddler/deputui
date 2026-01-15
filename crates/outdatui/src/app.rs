@@ -7,20 +7,20 @@ use ratatui::{
 };
 use smol::channel::Sender;
 
+use crate::async_task::{AsyncTask, AsyncTaskStatus};
 use crate::multi_select::{MultiSelect, SelectOption};
-use crate::{app_shell::AppShell, multi_select::MultiSelectView};
+use crate::{app_shell::AppShell, multi_select::MultiSelectView, release_ext::ReleaseExt};
 use common::release::Release;
 
 const SCROLL_STEP_SIZE: u16 = 5;
 
 pub struct App {
     scroll: u16,
-    release_notes: Option<String>,
     focused_pane: Pane,
     multiselect: MultiSelect<Release>,
     pub should_exit: Option<ExitAction>, // `Ok(…)` if user wants to exit; … == true iff they want to print the selected releases
-    render_tx: Sender<()>,               // Channel to trigger re-renders from within App
     left_column_width: u16,
+    release_notes_task: AsyncTask<String, Release>,
 }
 
 #[derive(PartialEq)]
@@ -49,14 +49,20 @@ impl App {
             })
             .collect();
 
+        let release_notes_task = AsyncTask::new(
+            |release: Release| {
+                smol::block_on(async move { ReleaseExt(&release).fetch_release_notes().await })
+            },
+            render_tx.clone(),
+        );
+
         let mut app = App {
             scroll: 0,
             multiselect: MultiSelect::new(options),
-            release_notes: None,
             focused_pane,
             should_exit: None,
-            render_tx,
             left_column_width: 40,
+            release_notes_task,
         };
 
         app.show_release_notes_of_focused_release();
@@ -103,13 +109,7 @@ impl App {
 
     pub fn show_release_notes_of_focused_release(&mut self) {
         let release = self.multiselect.focused_value();
-        self.release_notes = get_release_notes_of(release);
-
-        // let url = "https://example.com";
-        // self.release_notes = match smol::block_on(get(url)) {
-        //     Ok(s) => Some(s),
-        //     Err(e) => Some(format!("--- Error fetching release notes: {e} ---")),
-        // };
+        self.release_notes_task.start_operation(release.clone());
     }
 
     pub fn scroll_up(&mut self) {
@@ -137,30 +137,6 @@ impl App {
     }
 }
 
-fn get_release_notes_of(release: &Release) -> Option<String> {
-    match release.to_string().as_str() {
-            "foo@1.1.0" => Some(
-                "# Level 1\n\
-\n\
-            **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
-\n\
-# Level 2\n\
-\n\
-            **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
-\n\
-# Level 3\n\
-\n\
-            **Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.\n\
-\n\
-            ## Something deeper\n\
-\n\
-            *Lorem ipsum* dolor sit amet, consectetur adipiscing elit. Morbi molestie nisi eros, ut viverra enim finibus id. Integer vitae lacus sit amet nisl eleifend malesuada at quis purus. Nulla cursus dignissim nisi, ut imperdiet ipsum aliquet a. Cras ultrices dignissim ultricies. Pellentesque sit amet blandit tortor, id porta felis. In hac habitasse platea dictumst. Praesent id leo risus. Etiam porttitor tellus neque, in laoreet tellus malesuada at. Duis placerat ultricies vehicula. Sed commodo nisi et tempor convallis. In volutpat ipsum eget ex sodales dictum.".to_string(),
-            ),
-            "bar@2.2.2" => Some("bar".to_string()),
-            _ => None,
-        }
-}
-
 fn get_style(focused: bool) -> Style {
     match focused {
         true => Style::default(),
@@ -170,9 +146,19 @@ fn get_style(focused: bool) -> Style {
 
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
-        let release_notes_text = match &self.release_notes {
-            None => Text::styled("--- No release notes ---", Color::Yellow),
-            Some(s) => tui_markdown::from_str(s),
+        let task_status = self.release_notes_task.status();
+        let release_notes_text = match task_status {
+            AsyncTaskStatus::Idle => Text::styled("--- No release notes ---", Color::Yellow),
+            AsyncTaskStatus::Loading => {
+                Text::styled("--- Loading release notes... ---", Color::Gray)
+            }
+            AsyncTaskStatus::Loaded(notes) => {
+                // For now, use plain text instead of markdown to avoid lifetime issues
+                Text::raw(notes)
+            }
+            AsyncTaskStatus::Error(error) => {
+                Text::styled(format!("--- Error: {} ---", error), Color::Red)
+            }
         };
 
         let release_notes = Paragraph::new(release_notes_text)
