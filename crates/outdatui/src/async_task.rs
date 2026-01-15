@@ -7,6 +7,7 @@ use crate::UiMessage;
 pub struct AsyncTaskRunner<T> {
     status: Arc<Mutex<AsyncTaskStatus<T>>>,
     notify_subscribers: Sender<UiMessage>,
+    task_id: Arc<Mutex<u64>>,
 }
 
 impl<T> AsyncTaskRunner<T>
@@ -17,6 +18,7 @@ where
         Self {
             status: Arc::new(Mutex::new(AsyncTaskStatus::Idle)),
             notify_subscribers,
+            task_id: Arc::new(Mutex::new(0)),
         }
     }
 
@@ -24,16 +26,37 @@ where
     where
         F: Future<Output = anyhow::Result<T>> + Send + 'static,
     {
+        // Increment task ID to cancel any existing task
+        let current_task_id = {
+            let mut task_id = self.task_id.lock().unwrap();
+            *task_id += 1;
+            *task_id
+        };
+
         self.set_status(AsyncTaskStatus::Loading);
 
         // Clone necessary data for the async task
         let status_clone = Arc::clone(&self.status);
         let notify_subscribers_clone = self.notify_subscribers.clone();
+        let task_id_clone = Arc::clone(&self.task_id);
 
         // Spawn the async task
         smol::spawn(async move {
-            let new_status = match future.await {
-                Ok(result) => AsyncTaskStatus::Loaded(result),
+            let task_result = future.await;
+
+            // Check if this task is still the current one
+            let is_current_task = {
+                let task_id = task_id_clone.lock().unwrap();
+                *task_id == current_task_id
+            };
+
+            if !is_current_task {
+                // This task has been superseded by a newer one
+                return;
+            }
+
+            let new_status = match task_result {
+                Ok(value) => AsyncTaskStatus::Loaded(value),
                 Err(e) => AsyncTaskStatus::Error(e.to_string()),
             };
 
@@ -181,6 +204,49 @@ mod tests {
         assert_eq!(
             runner.status(),
             AsyncTaskStatus::Error("error operation".to_string())
+        );
+    }
+
+    #[test]
+    fn test_cancellation_prevents_stale_results() {
+        let (tx, rx) = channel::bounded::<UiMessage>(10);
+        let runner = AsyncTaskRunner::<String>::new(tx);
+
+        // Start a slow operation that will be superseded
+        runner.start_operation(async {
+            smol::Timer::after(std::time::Duration::from_millis(100)).await;
+            Ok("slow_result".to_string())
+        });
+
+        // Start a fast operation that should complete first and be the final result
+        runner.start_operation(async {
+            smol::Timer::after(std::time::Duration::from_millis(10)).await;
+            Ok("fast_result".to_string())
+        });
+
+        // Wait for the fast operation to complete (loading -> loaded transition)
+        smol::block_on(async {
+            while matches!(runner.status(), AsyncTaskStatus::Loading) {
+                rx.recv().await.ok();
+            }
+        });
+
+        // Verify we got the fast result, not the slow one
+        assert_eq!(
+            runner.status(),
+            AsyncTaskStatus::Loaded("fast_result".to_string())
+        );
+
+        // Wait longer to ensure the slow operation had time to complete
+        // (but it shouldn't affect the status since it was cancelled)
+        smol::block_on(async {
+            smol::Timer::after(std::time::Duration::from_millis(200)).await;
+        });
+
+        // Status should still be the fast result, proving cancellation worked
+        assert_eq!(
+            runner.status(),
+            AsyncTaskStatus::Loaded("fast_result".to_string())
         );
     }
 }
