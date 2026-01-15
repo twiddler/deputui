@@ -20,7 +20,6 @@ pub struct NpmPackage {
 pub struct NpmVersion {
     pub name: String,
     pub version: String,
-    pub repository: Repository,
 }
 
 impl NpmPackage {
