@@ -1,0 +1,1 @@
+Ok. Now step back for a moment and read the todo.md as if you were reading it for the first time.Is there anything unclear? The goal here is to make sure we can give this todo.md to anyone on our team and they can start working on it with little to no questions.
