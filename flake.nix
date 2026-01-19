@@ -21,6 +21,12 @@
         cargoLock = {
           lockFile = ./Cargo.lock;
         };
+        nativeBuildInputs = with pkgs; [
+          pkg-config
+        ];
+        buildInputs = with pkgs; [
+          openssl
+        ];
       };
 
       devShells.${system}.default = pkgs.mkShell {
