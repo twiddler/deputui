@@ -1,4 +1,4 @@
-![logo | width=100](./logo.svg)
+<div align="center"><img src="./logo.svg" alt="Alt Text" width="100" /></div>
 
 `deputui` is a little TUI for reviewing minor version updates of NPM dependencies at the speed of light and with a smile. 🦸
 
