@@ -107,7 +107,6 @@ impl App {
     pub fn show_release_notes_of_focused_release(&mut self) {
         let release = self.multiselect.focused_value().clone();
 
-        // This (or some descendant of it) causes the sluggishness:
         self.release_notes_runner
             .start_operation(async move { ReleaseExt(&release).fetch_release_notes().await });
     }

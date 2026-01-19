@@ -54,7 +54,7 @@ impl GitHubRepo {
         req.insert_header("User-Agent", "deputui-review/0.1.0");
         req.insert_header("Accept", "application/vnd.github.v3+json");
 
-        if let Ok(token) = env::var("OUTDATUI_GITHUB_TOKEN") {
+        if let Ok(token) = env::var("DEPUTUI_GITHUB_TOKEN") {
             req.insert_header("Authorization", format!("Bearer {}", token));
         }
 

@@ -30,6 +30,15 @@ If you want to update to the selected releases, you can pipe the output back to 
 $ pnpm outdated --format json | deputui | xargs pnpm update
 ```
 
+# Configuration
+
+To avoid getting rate-limited by GitHub when fetching release information, you can set the `DEPUTUI_GITHUB_TOKEN` environment variable with your [GitHub personal access token](https://github.com/settings/personal-access-tokens):
+
+```console
+$ export DEPUTUI_GITHUB_TOKEN=your_github_token_here
+$ pnpm outdated --format json | deputui | xargs pnpm update
+```
+
 # Installation
 
 ## Manually
