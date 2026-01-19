@@ -1,14 +1,12 @@
-name := outdatui
-helper := outdat-list
-$(info Making ${name} …)
-$(info Making ${helper} …)
+$(info Making deputui and deputui-* binaries …)
 
 build:
 	cargo build --release --workspace
 
 install:
-	sudo cp target/release/$(name) /usr/bin/$(name)
-	sudo cp target/release/$(helper) /usr/bin/$(helper)
+	sudo cp target/release/deputui /usr/bin/deputui
+	sudo cp target/release/deputui-pnpm /usr/bin/deputui-pnpm
+	sudo cp target/release/deputui-review /usr/bin/deputui-review
 
 all: build install
 

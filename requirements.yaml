@@ -1,14 +1,54 @@
-list-minor-updates:
-  description: Given a package name and a semver version, this program must determine newer minor releases of that package by querying the npm.js registry.
-  done: true
+deputui:
+  description: All-in-one binary for reviewing and selecting version updates of outdated NPM dependencies. This is the standard way to use the tool - it parses pnpm output, fetches releases, and provides the review TUI in one command.
+  done: false
+  subtasks:
+    reuse-existing-code:
+      description: This program must use exports from other deputui-* packages instead of duplicating code
+      done: false
+    standalone:
+      description: This program must not depend on the other deputui-* binaries to be available
+      done: false
+
+deputui-pnpm:
+  description: Parse package manager output into a standardized JSON format.
+  done: false
+  subtasks:
+    parse-pnpm-output:
+      description: This program must parse the output of `pnpm outdated --format json` from stdin.
+      done: true
+      tests:
+        parses-successfully:
+          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
+          assert: The program parses the string successfully and outputs structured package data
+          done: true
+    validate-input:
+      description: This program must validate that input matches expected JSON schema.
+      done: false
+    output-structured-data:
+      description: This program must output parsed package information as JSON to stdout.
+      done: false
+      tests:
+        outputs-structured-data:
+          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
+          assert: 'Output is `[{ "package": "foo", "semver": "1.0.0", "repository_url": "https://foo.bar/baz.git" }]`'
+
+deputui-fetch:
+  description: Fetch minor version updates for parsed package data from NPM registry.
+  done: false
   subtasks:
     fetch-list-of-releases-from-npmjs:
-      description: Given an existing NPM package name, this program must be able to fetch the list of released versions of that package from npm.js
+      description: Given parsed package data, this program must fetch the list of releases from npm.js registry for each package.
       done: true
+    filter-minor-versions:
+      description: This program must filter releases to only include minor version updates between current and latest versions.
+      done: true
+    concurrent-fetching:
+      description: This program must fetch data for multiple packages concurrently for better performance.
+      done: false
 
-outdatui:
-  description: This program must assist with reviewing and installing version updates of outdated NPM dependencies. It must parse the output of `pnpm outdated --format json`. It shows version updates available, fetches release notes, allows to select which releases should be installed, and prints them to stdout when the user confirms their selection.
-  done: true
+deputui-review:
+  description: Review and select version updates in a TUI interface. This binary provides the user interface for reviewing fetched releases and selecting which ones to install.
+  done: false
   subtasks:
     render-releases:
       description: The program must render the newer minor releases in a list which allows focusing and selecting releases

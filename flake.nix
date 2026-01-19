@@ -15,7 +15,7 @@
     in
     {
       packages.${system}.default = pkgs.rustPlatform.buildRustPackage {
-        pname = "outdatui";
+        pname = "deputui";
         version = "0.0.1";
         src = pkgs.lib.cleanSource ./.;
         cargoLock = {

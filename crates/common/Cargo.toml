@@ -2,7 +2,7 @@
 name = "common"
 version = "0.1.0"
 edition = "2021"
-description = "Common functionality for outdatui binaries"
+description = "Common functionality for deputui binaries"
 license = "MIT"
 
 [dependencies]

@@ -733,6 +733,39 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5729f5117e208430e437df2f4843f5e5952997175992d1414f94c57d61e270b4"
 
 [[package]]
+name = "deputui"
+version = "0.1.0"
+
+[[package]]
+name = "deputui-pnpm"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "common",
+ "futures",
+ "serde",
+ "serde_json",
+ "smol",
+]
+
+[[package]]
+name = "deputui-review"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "common",
+ "crossterm 0.28.1",
+ "futures",
+ "http-types",
+ "ratatui",
+ "serde",
+ "serde_json",
+ "smol",
+ "tui-markdown",
+ "url",
+]
+
+[[package]]
 name = "deranged"
 version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1797,35 +1830,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7bb71e1b3fa6ca1c61f383464aaf2bb0e2f8e772a1f01d486832464de363b951"
 dependencies = [
  "num-traits",
-]
-
-[[package]]
-name = "outdat-list"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "common",
- "futures",
- "serde",
- "serde_json",
- "smol",
-]
-
-[[package]]
-name = "outdatui"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "common",
- "crossterm 0.28.1",
- "futures",
- "http-types",
- "ratatui",
- "serde",
- "serde_json",
- "smol",
- "tui-markdown",
- "url",
 ]
 
 [[package]]

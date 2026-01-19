@@ -1,0 +1,12 @@
+[package]
+name = "deputui"
+version = "0.1.0"
+edition = "2021"
+description = "TUI for fetching and reviewing NPM minor version updates"
+license = "MIT"
+
+[[bin]]
+name = "deputui"
+path = "src/main.rs"
+
+[dependencies]

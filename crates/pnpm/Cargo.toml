@@ -1,12 +1,12 @@
 [package]
-name = "outdat-list"
+name = "deputui-pnpm"
 version = "0.1.0"
 edition = "2021"
 description = "Lists minor version updates for NPM packages"
 license = "MIT"
 
 [[bin]]
-name = "outdat-list"
+name = "deputui-pnpm"
 path = "src/main.rs"
 
 [dependencies]

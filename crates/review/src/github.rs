@@ -51,7 +51,7 @@ impl GitHubRepo {
         );
 
         let mut req = Request::new(Method::Get, Url::parse(&url)?);
-        req.insert_header("User-Agent", "outdatui/0.1.0");
+        req.insert_header("User-Agent", "deputui-review/0.1.0");
         req.insert_header("Accept", "application/vnd.github.v3+json");
 
         if let Ok(token) = env::var("OUTDATUI_GITHUB_TOKEN") {
