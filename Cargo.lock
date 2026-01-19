@@ -735,6 +735,12 @@ checksum = "5729f5117e208430e437df2f4843f5e5952997175992d1414f94c57d61e270b4"
 [[package]]
 name = "deputui"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "deputui-pnpm",
+ "deputui-review",
+ "smol",
+]
 
 [[package]]
 name = "deputui-pnpm"

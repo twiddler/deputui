@@ -10,3 +10,7 @@ name = "deputui"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1.0.100"
+deputui-pnpm = { path = "../pnpm" }
+deputui-review = { path = "../review" }
+smol = "2.0.0"

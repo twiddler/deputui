@@ -1,6 +1,6 @@
 # Implementation Checklist: deputui All-in-One Binary
 
-- [ ] **Create library module for deputui-pnpm crate**
+- [x] **Create library module for deputui-pnpm crate**
   - Create `crates/deputui-pnpm/src/lib.rs` file
   - Refactor the main function of `crates/deputui-pnpm/src/main.rs` into helper functions
   - Export helper functions as public library functions:
@@ -20,7 +20,7 @@
 
   - Update `main.rs` to use the library functions from `lib.rs`
 
-- [ ] **Create library module for deputui-review crate**
+- [x] **Create library module for deputui-review crate**
   - Create `crates/deputui-review/src/lib.rs` file
   - Export the TUI logic as public library functions:
 
@@ -45,7 +45,7 @@
   - Update the function to return selected releases instead of printing them
   - Update `main.rs` to use the library functions
 
-- [ ] **Initiliaze deputui crate**
+- [x] **Initiliaze deputui crate**
   - Create `crates/all-in-one/Cargo.toml` with these library dependencies:
     ```toml
     [dependencies]
@@ -55,7 +55,7 @@
     ```
   - Ensure the workspace still builds correctly
 
-- [ ] **Change deputui main.rs to use library functions**
+- [x] **Change deputui main.rs to use library functions**
   - Call library functions:
 
     ```rust
@@ -81,22 +81,3 @@
         Ok(())
     }
     ```
-
-- [ ] **Export necessary types and modules from deputui-review**
-  - Update `crates/deputui-review/src/lib.rs` to re-export types if needed:
-    ```rust
-    pub use crate::app::{App, ExitAction, Pane};
-    pub use crate::async_task::{AsyncTaskRunner, AsyncTaskStatus};
-    pub use crate::multi_select::{MultiSelect, MultiSelectView, SelectOption};
-    pub use crate::tui::{setup_terminal, restore_terminal};
-    pub use crate::UiMessage;
-    ```
-  - Ensure all internal modules are properly accessible
-  - Make sure the public API is clean and usable
-
-- [ ] **Test the refactored deputui implementation**
-  - Build the entire workspace: `cargo build --workspace`
-  - Test `deputui` with sample pnpm output
-  - Verify that `deputui-pnpm` binary still works independently
-  - Verify that `deputui-review` binary still works independently
-  - Test the full pipeline: `pnpm outdated --format json | deputui`
