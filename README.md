@@ -67,14 +67,14 @@ This will build and install all three binaries:
 
 If you want to use this in an SSTv2 project that has a `flake.nix`, this is the minimal setup for having the binaries in your dev shell:
 
-```
+```nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-     deputui.url = "git+ssh://git@github.com/twiddler/deputui.git";
+    deputui.url = "git+ssh://git@github.com/twiddler/deputui.git";
   };
 
-   outputs = { self, nixpkgs, deputui }:
+  outputs = { self, nixpkgs, deputui }:
     let
       system = "x86_64-linux";
 
