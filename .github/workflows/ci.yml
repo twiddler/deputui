@@ -46,7 +46,7 @@ jobs:
         with:
           components: clippy
 
-      - uses: clechasseur/rs-clippy-check@v3
+      - uses: clechasseur/rs-clippy-check@v5
 
       - uses: Swatinem/rust-cache@v2
 
