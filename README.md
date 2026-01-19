@@ -1,3 +1,6 @@
+![logo](./logo.svg)
+<img src="./logo.svg">
+
 `deputui` is a little TUI for reviewing minor version updates of NPM dependencies at the speed of light and with a smile. 🦸
 
 # Motivation
