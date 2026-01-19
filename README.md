@@ -1,6 +1,6 @@
 <img src="./logo.svg" alt="Alt Text" width="100" />
 
-`deputui` is a little TUI for reviewing minor version updates of NPM dependencies at the speed of light and with a smile. 🦸
+`deputui` is a little TUI for reviewing minor version updates of NPM dependencies.
 
 # Motivation
 
