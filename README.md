@@ -71,7 +71,7 @@ If you want to use this in an SSTv2 project that has a `flake.nix`, this is the 
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    deputui.url = "git+ssh://git@github.com/twiddler/deputui.git";
+    deputui.url = "github:twiddler/deputui";
   };
 
   outputs = { self, nixpkgs, deputui }:
@@ -86,7 +86,7 @@ If you want to use this in an SSTv2 project that has a `flake.nix`, this is the 
         name = "dev-shell";
 
         buildInputs = with pkgs; [
-          deputui.packages.${system}.deputui
+          deputui.packages.${system}.default
         ];
       };
     };
