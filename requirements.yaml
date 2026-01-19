@@ -1,17 +1,18 @@
 deputui:
   description: All-in-one binary for reviewing and selecting version updates of outdated NPM dependencies. This is the standard way to use the tool - it parses pnpm output, fetches releases, and provides the review TUI in one command.
-  done: false
+  done: true
   subtasks:
     reuse-existing-code:
       description: This program must use exports from other deputui-* packages instead of duplicating code
-      done: false
+      done: true
+
     standalone:
       description: This program must not depend on the other deputui-* binaries to be available
-      done: false
+      done: true
 
 deputui-pnpm:
   description: Parse package manager output into a standardized JSON format.
-  done: false
+  done: true
   subtasks:
     parse-pnpm-output:
       description: This program must parse the output of `pnpm outdated --format json` from stdin.
@@ -21,34 +22,38 @@ deputui-pnpm:
           arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
           assert: The program parses the string successfully and outputs structured package data
           done: true
+
     validate-input:
       description: This program must validate that input matches expected JSON schema.
-      done: false
+      done: true
+
     output-structured-data:
       description: This program must output parsed package information as JSON to stdout.
-      done: false
+      done: true
       tests:
         outputs-structured-data:
           arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
           assert: 'Output is `[{ "package": "foo", "semver": "1.0.0", "repository_url": "https://foo.bar/baz.git" }]`'
 
-deputui-fetch:
-  description: Fetch minor version updates for parsed package data from NPM registry.
-  done: false
-  subtasks:
-    fetch-list-of-releases-from-npmjs:
-      description: Given parsed package data, this program must fetch the list of releases from npm.js registry for each package.
+    deputui-fetch:
+      description: Fetch minor version updates for parsed package data from NPM registry.
       done: true
-    filter-minor-versions:
-      description: This program must filter releases to only include minor version updates between current and latest versions.
-      done: true
-    concurrent-fetching:
-      description: This program must fetch data for multiple packages concurrently for better performance.
-      done: false
+      subtasks:
+        fetch-list-of-releases-from-npmjs:
+          description: Given parsed package data, this program must fetch the list of releases from npm.js registry for each package.
+          done: true
+
+        filter-minor-versions:
+          description: This program must filter releases to only include minor version updates between current and latest versions.
+          done: true
+
+        concurrent-fetching:
+          description: This program must fetch data for multiple packages concurrently for better performance.
+          done: true
 
 deputui-review:
   description: Review and select version updates in a TUI interface. This binary provides the user interface for reviewing fetched releases and selecting which ones to install.
-  done: false
+  done: true
   subtasks:
     render-releases:
       description: The program must render the newer minor releases in a list which allows focusing and selecting releases
@@ -57,6 +62,7 @@ deputui-review:
         focus:
           description: The user must be able to focus releases with keyboard hotkeys
           done: true
+
         select:
           description: The user must be able to select entries
           done: true
@@ -87,32 +93,33 @@ deputui-review:
 
     responsivesness:
       description: This program must handle fetching data and receiving keyboard input in parallel, i.e. fetching data should not make the UI unresponsive, nor should keyboard strokes delay fetching data
-      done: false
+      done: true
 
 lib:
   description: "This program must curate a library of functionalities shared across binaries"
   done: true
-  parse-input:
-    description: This program must parse the output of `pnpm outdated --format json`. Behaviour for other input is not defined.
-    done: true
-    tests:
-      parses-successfully:
-        arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
-        assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is latest
-        done: true
-  handle-semvers:
-    description: This library must be capable of parsing and comparing semvers
-    done: true
-    tests:
-      parsing:
-        arrange: Given a semver as a string
-        assert: Parses the string to a Semver struct
-        done: true
-      comparing:
-        arrange: Given two Semver struct instances
-        assert: Determines which of the one is greater or whether both are equal
-        done: true
-      filter-minor-versions:
-        arrange: Given a list of semvers and a current semver
-        assert: The result of this function includes all and only minor version updates for the current version
-        done: true
+  subtasks:
+    parse-input:
+      description: This program must parse the output of `pnpm outdated --format json`. Behaviour for other input is not defined.
+      done: true
+      tests:
+        parses-successfully:
+          arrange: 'Given the string `{ "foo": { "current": "1.0.0", "latest": "1.1.0" }}`'
+          assert: The program parses the string successfully and knows that currently, foo@1.0.0 is installed, and foo@1.1.0 is latest
+          done: true
+    handle-semvers:
+      description: This library must be capable of parsing and comparing semvers
+      done: true
+      tests:
+        parsing:
+          arrange: Given a semver as a string
+          assert: Parses the string to a Semver struct
+          done: true
+        comparing:
+          arrange: Given two Semver struct instances
+          assert: Determines which of the one is greater or whether both are equal
+          done: true
+        filter-minor-versions:
+          arrange: Given a list of semvers and a current semver
+          assert: The result of this function includes all and only minor version updates for the current version
+          done: true
