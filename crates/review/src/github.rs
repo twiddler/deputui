@@ -88,27 +88,7 @@ impl GitHubRepo {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GitHubRelease {
-    pub url: String,
-    pub html_url: String,
-    pub id: u64,
-    pub tag_name: String,
-    pub name: String,
     pub body: Option<String>,
-    pub draft: bool,
-    pub prerelease: bool,
-    pub created_at: String,
-    pub published_at: String,
-    pub author: GitHubAuthor,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GitHubAuthor {
-    pub login: String,
-    pub id: u64,
-    pub avatar_url: String,
-    pub html_url: String,
-    #[serde(default)]
-    pub r#type: Option<String>,
 }
 
 #[cfg(test)]
