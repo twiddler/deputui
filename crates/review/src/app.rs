@@ -82,10 +82,12 @@ impl App {
                 KeyCode::Char('l') => self.focus_pane(Pane::ReleaseNotes),
                 KeyCode::Char('k') => {
                     self.multiselect.previous();
+                    self.scroll = 0;
                     self.show_release_notes_of_focused_release();
                 }
                 KeyCode::Char('j') => {
                     self.multiselect.next();
+                    self.scroll = 0;
                     self.show_release_notes_of_focused_release();
                 }
                 KeyCode::Char('-') => self.shrink_left_column(),
