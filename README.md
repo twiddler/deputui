@@ -22,7 +22,7 @@ Pipe your pnpm output directly into `deputui`:
 $ pnpm outdated --format json | deputui
 ```
 
-Then, in `deputui`, review the minor version updates and select those you want to update to with <kbd>Space</kbd>. When you're done, hit <kbd>Enter</kbd> to confirm. The `package@version` identifiers you selected will be printed to stdout.
+Then, in `deputui`, review the minor version updates and select those you want to update. When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
 
 If you want to update to the selected releases, you can pipe the output back to pnpm:
 
