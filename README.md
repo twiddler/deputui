@@ -6,7 +6,7 @@
 
 Reviewing version updates of NPM dependencies can be quite tedious. Run `pnpm outdated`, go to the repositories, the release tags, and hunt down the relevant ones. That's no fun. 🙁
 
-When dependencies follow the semver semantics properly, we know that
+When dependencies follow the semver semantics properly, then:
 
 - **Major versions** have breaking changes. Migrating to that version might take minutes or days. These are released infrequently.
 - **Minor versions** have new features. We want to review those and see whether we can use the new features in our own code. These are released regularly.
@@ -106,7 +106,11 @@ If you're using a package manager other than pnpm, you can still use this! You o
 }
 ```
 
-You might want to try `jq` for transforming. After that, you can pipe to `some-package-manager outdated | jq <your transform> | deputui` just like you would if you were using pnpm. Pretty pipes! 🪠
+You might want to try `jq` for transforming. After that, you can
+
+```console
+$ some-package-manager outdated | jq <your transform> | deputui
+```
 
 # Advanced Usage
 
