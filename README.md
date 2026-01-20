@@ -32,7 +32,9 @@ $ pnpm outdated --format json | deputui | xargs pnpm update
 
 # Configuration
 
-To avoid getting rate-limited by GitHub when fetching release information, you can set the `DEPUTUI_GITHUB_TOKEN` environment variable with your [GitHub personal access token](https://github.com/settings/personal-access-tokens):
+`deputui` fetches release notes from GitHub's REST API. GitHub limits unauthenticated requests to 60 requests per hour, and authenticated requests to 5,000 requests per hour (https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api).
+
+You can provide your [GitHub personal access token](https://github.com/settings/personal-access-tokens) via an environment variable:
 
 ```console
 $ export DEPUTUI_GITHUB_TOKEN=your_github_token_here
@@ -57,15 +59,15 @@ If you're not using nix, reconsider your life decisions, then [install rust](htt
 $ make all
 ```
 
-This will build and install all three binaries:
+This will build and install three binaries:
 
-- `deputui` (all-in-one binary)
-- `deputui-pnpm` (fetching binary)
-- `deputui-review` (TUI binary)
+- `deputui`
+- `deputui-pnpm`
+- `deputui-review`
 
 ## Via flake.nix
 
-If you want to use this in an SSTv2 project that has a `flake.nix`, this is the minimal setup for having the binaries in your dev shell:
+If you want to use this in a project that has a `flake.nix`, this is the minimal setup for having the binaries in your dev shell:
 
 ```nix
 {
