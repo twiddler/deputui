@@ -1,12 +1,12 @@
 <img src="./logo.svg" alt="Alt Text" width="100" />
 
-`deputui` is a little TUI for reviewing minor version updates of NPM dependencies.
+`deputui` is a TUI for reviewing release notes of NPM dependencies.
 
 # Motivation
 
-Reviewing version updates of NPM dependencies can be quite tedious. Run `pnpm outdated`, go to the repositories, the release tags, and hunt down the relevant ones. That's no fun. 🙁
+Reviewing release notes of dependency updates can be quite tedious. Run `pnpm outdated`, go to the repositories, the release tags, and hunt down the relevant ones. That's no fun. 🙁
 
-When dependencies follow the semver semantics properly, then:
+When dependencies adhere to semver semantics, then:
 
 - **Major versions** have breaking changes. Migrating to that version might take minutes or days. These are released infrequently.
 - **Minor versions** have new features. We want to review those and see whether we can use the new features in our own code. These are released regularly.
@@ -22,7 +22,7 @@ Pipe your pnpm output directly into `deputui`:
 $ pnpm outdated --format json | deputui
 ```
 
-Then, in `deputui`, review the minor version updates and select those you want to update. When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
+Then, in `deputui`, review the release notes of minor version updates and select those you want to update install. When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
 
 If you want to update to the selected releases, you can pipe the output back to pnpm:
 
