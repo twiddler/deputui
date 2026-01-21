@@ -4,7 +4,7 @@
 
 # Motivation
 
-Reviewing release notes of dependency updates can be quite tedious. Run `pnpm outdated`, go to the repositories, the release tags, and hunt down the relevant ones. That's no fun. 🙁
+Reviewing release notes is tedious: Run `pnpm outdated`, look up the corresponding repositories, and hunt down all relevant release notes. That's a lot of brainless work, and it's no fun. 🙁
 
 When dependencies adhere to semver semantics, then:
 
@@ -22,7 +22,7 @@ Pipe your pnpm output directly into `deputui`:
 $ pnpm outdated --format json | deputui
 ```
 
-Then, in `deputui`, review the release notes of minor version updates and select those you want to update install. When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
+Then, in `deputui`, review release notes and select those releases you want to install. When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
 
 If you want to update to the selected releases, you can pipe the output back to pnpm:
 
@@ -34,7 +34,7 @@ $ pnpm outdated --format json | deputui | xargs pnpm update
 
 `deputui` fetches release notes from GitHub's REST API. GitHub limits unauthenticated requests to 60 requests per hour, and authenticated requests to 5,000 requests per hour (https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api).
 
-You can provide your [GitHub personal access token](https://github.com/settings/personal-access-tokens) via an environment variable:
+`deputui` makes unauthenticated requests by default. You can make it make authenticated requests by providing your [GitHub personal access token](https://github.com/settings/personal-access-tokens) via an environment variable:
 
 ```console
 $ export DEPUTUI_GITHUB_TOKEN=your_github_token_here
