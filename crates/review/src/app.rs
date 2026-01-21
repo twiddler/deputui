@@ -165,7 +165,7 @@ fn get_style(focused: bool) -> Style {
     }
 }
 
-impl Widget for &App {
+impl Widget for &mut App {
     fn render(self, area: Rect, buf: &mut ratatui::buffer::Buffer) {
         let task_status = self.release_notes_runner.status();
         let release_notes_text = match task_status {
@@ -192,7 +192,7 @@ impl Widget for &App {
 
         AppShell {
             left: MultiSelectView {
-                multi_select: &self.multiselect,
+                multi_select: &mut self.multiselect,
                 focused: self.focused_pane == Pane::Releases,
                 block: get_block(self.focused_pane == Pane::Releases),
             },

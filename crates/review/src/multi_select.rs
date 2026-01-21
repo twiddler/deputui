@@ -4,11 +4,11 @@ use ratatui::{
     layout::Rect,
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, List, ListItem, Widget},
+    widgets::{Block, List, ListItem, ListState, StatefulWidget, Widget},
 };
 
 pub struct MultiSelectView<'a, T> {
-    pub multi_select: &'a MultiSelect<T>,
+    pub multi_select: &'a mut MultiSelect<T>,
     pub focused: bool,
     pub block: Block<'a>,
 }
@@ -34,31 +34,39 @@ impl<T> Widget for MultiSelectView<'_, T> {
 
                 create_option_item(&select_option.label, select_option.selected, indicator)
             })
-            .map(|o| ListItem::new(o))
+            .map(ListItem::new)
             .collect();
 
-        List::new(list_items).block(self.block).render(area, buf);
+        let list = List::new(list_items).block(self.block);
+        StatefulWidget::render(list, area, buf, &mut self.multi_select.list_state);
     }
 }
 
 pub struct MultiSelect<T> {
     options: Vec<SelectOption<T>>,
     cursor: usize,
+    list_state: ListState,
 }
 
 impl<T> MultiSelect<T> {
     pub fn new(options: Vec<SelectOption<T>>) -> MultiSelect<T> {
-        MultiSelect { options, cursor: 0 }
+        MultiSelect {
+            options,
+            cursor: 0,
+            list_state: ListState::default().with_selected(Some(0)),
+        }
     }
 
     pub fn previous(&mut self) {
         self.cursor = self.cursor.saturating_sub(1);
+        self.list_state.select(Some(self.cursor));
     }
 
     pub fn next(&mut self) {
         let max_cursor = self.options.len() - 1;
 
-        self.cursor = cmp::min(max_cursor, self.cursor.saturating_add(1))
+        self.cursor = cmp::min(max_cursor, self.cursor.saturating_add(1));
+        self.list_state.select(Some(self.cursor));
     }
 
     pub fn toggle(&mut self) {

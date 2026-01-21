@@ -89,7 +89,7 @@ async fn run_app_async<B: Backend<Error = io::Error>>(
     ui_rx: smol::channel::Receiver<UiMessage>,
 ) -> io::Result<bool> {
     loop {
-        terminal.draw(|frame| frame.render_widget(&*app, frame.area()))?;
+        terminal.draw(|frame| frame.render_widget(&mut *app, frame.area()))?;
 
         match ui_rx.recv().await {
             Ok(UiMessage::Key(key)) => {
