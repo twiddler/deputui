@@ -4,15 +4,15 @@
 
 # Motivation
 
-Reviewing release notes is tedious: Run `pnpm outdated`, look up the corresponding repositories, and hunt down all relevant release notes. That's no fun. 🙁
+Reviewing release notes is tedious: Run `pnpm outdated`, look up the corresponding repositories, and hunt down all relevant release notes.
 
-When dependencies adhere to semver semantics, then:
+However, for dependencies that adhere to semver semantics, we know that …
 
-- **Major versions** have breaking changes. Migrating to that version might take minutes or days. These are released infrequently.
-- **Minor versions** have new features. We want to review those and see whether we can use the new features in our own code. These are released regularly.
-- **Patch versions** have bug fixes only. We can always update those, essentially without reviewing. (You should defend against malicious updates with [`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage) or similar measures.) These are released frequently.
+- **major** version updates have breaking changes that might take some effort,
+- **minor** version updates have new features we might want to adopt, and
+- **patch** version updates have bug fixes only which we always want to install.
 
-So minor version updates are those that we must review and will be reviewing most often, so it'd be great to make that process fast and convenient. This is what `deputui` is for. 🏎️💨
+Most of the time, we will be reviewing minor version updates. It'd be great to make that fast and convenient. This is what `deputui` is for. 🏎️💨
 
 # How to use
 
