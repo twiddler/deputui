@@ -4,7 +4,7 @@
 
 # Motivation
 
-Reviewing release notes is tedious: Run `pnpm outdated`, look up the corresponding repositories, and hunt down all relevant release notes. That's a lot of brainless work, and it's no fun. 🙁
+Reviewing release notes is tedious: Run `pnpm outdated`, look up the corresponding repositories, and hunt down all relevant release notes. That's no fun. 🙁
 
 When dependencies adhere to semver semantics, then:
 
