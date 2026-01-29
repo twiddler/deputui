@@ -22,7 +22,11 @@ Pipe your pnpm output directly into `deputui`:
 $ pnpm outdated --format json | deputui
 ```
 
-Then, in `deputui`, review release notes and select those releases you want to install. When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
+Then, in `deputui`, review release notes and select those releases you want to install.
+
+<img width="1342" height="557" alt="image" src="https://github.com/user-attachments/assets/f69533fc-7c89-4208-a0c1-e81c75dbc6fd" />
+
+When you're done, confirm. The `package@version` identifiers you selected will be printed to stdout.
 
 If you want to update to the selected releases, you can pipe the output back to pnpm:
 
