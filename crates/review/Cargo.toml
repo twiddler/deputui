@@ -2,7 +2,7 @@
 name = "deputui-review"
 version = "0.1.0"
 edition = "2021"
-description = "TUI for reviewing NPM version updates"
+description = "TUI for reviewing release notes"
 license = "MIT"
 
 [[bin]]
@@ -21,3 +21,4 @@ smol = "2.0.2"
 tui-markdown = "0.3.7"
 url = "2.5.8"
 common = { path = "../common" }
+clap = { version = "4.5.56", features = ["derive"] }

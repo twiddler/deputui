@@ -10,6 +10,10 @@ deputui:
       description: This program must not depend on the other deputui-* binaries to be available
       done: true
 
+    help:
+      description: When called with --help, this program must inform the user about the purpose of the program and the accepted flags
+      done: true
+
 deputui-pnpm:
   description: Parse package manager output into a standardized JSON format.
   done: true
@@ -50,6 +54,10 @@ deputui-pnpm:
         concurrent-fetching:
           description: This program must fetch data for multiple packages concurrently for better performance.
           done: true
+
+    help:
+      description: When called with --help, this program must inform the user about the purpose of the program and the accepted flags
+      done: true
 
 deputui-review:
   description: Review and select version updates in a TUI interface. This binary provides the user interface for reviewing fetched releases and selecting which ones to install.
@@ -93,6 +101,10 @@ deputui-review:
 
     responsivesness:
       description: This program must handle fetching data and receiving keyboard input in parallel, i.e. fetching data should not make the UI unresponsive, nor should keyboard strokes delay fetching data
+      done: true
+
+    help:
+      description: When called with --help, this program must inform the user about the purpose of the program and the accepted flags
       done: true
 
 lib:
