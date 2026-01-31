@@ -9,5 +9,10 @@ use clap::Parser;
     pnpm outdated --format json | deputui
 
     # Install selected releases:
-    pnpm outdated --format json | deputui | xargs pnpm update")]
+    pnpm outdated --format json | deputui | xargs pnpm update
+
+ENVIRONMENT:
+    DEPUTUI_GITHUB_TOKEN    GitHub personal access token for authenticated API requests.
+                            Unauthenticated requests are limited to 60/hour; authenticated
+                            requests are limited to 5,000/hour.")]
 pub struct Args {}
