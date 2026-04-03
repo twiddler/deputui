@@ -10,7 +10,7 @@ name = "deputui-review"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.102"
 futures = "0.3.32"
 http-types = "2.12.0"
 ratatui = "0.30.0"
@@ -21,4 +21,4 @@ smol = "2.0.2"
 tui-markdown = "0.3.7"
 url = "2.5.8"
 common = { path = "../common" }
-clap = { version = "4.5.56", features = ["derive"] }
+clap = { version = "4.5.60", features = ["derive"] }

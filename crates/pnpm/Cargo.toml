@@ -10,10 +10,10 @@ name = "deputui-pnpm"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.102"
 futures = "0.3.32"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.149"
 smol = "2.0.2"
 common = { path = "../common" }
-clap = { version = "4.5.56", features = ["derive"] }
+clap = { version = "4.5.60", features = ["derive"] }

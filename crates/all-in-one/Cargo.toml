@@ -10,8 +10,8 @@ name = "deputui"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.100"
-clap = { version = "4.5.56", features = ["derive"] }
+anyhow = "1.0.102"
+clap = { version = "4.5.60", features = ["derive"] }
 deputui-pnpm = { path = "../pnpm" }
 deputui-review = { path = "../review" }
 smol = "2.0.0"
