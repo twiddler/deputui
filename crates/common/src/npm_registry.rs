@@ -1,17 +1,31 @@
-use crate::{async_h1_client, release::Release, semver::Semver};
+use crate::{
+    async_h1_client, release::Release, semver::Semver, string_or_struct::string_or_struct,
+};
 use anyhow::Result;
 use serde::Deserialize;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, convert::Infallible, str::FromStr};
 
 #[derive(Debug, Deserialize)]
 pub struct Repository {
     pub url: String,
-    pub r#type: String,
+    pub r#type: Option<String>,
+}
+
+impl FromStr for Repository {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Repository {
+            url: s.to_string(),
+            r#type: None,
+        })
+    }
 }
 
 #[derive(Debug, Deserialize)]
 pub struct NpmPackage {
     pub name: String,
+    #[serde(deserialize_with = "string_or_struct")]
     pub repository: Repository,
     pub versions: BTreeMap<String, NpmVersion>,
 }
