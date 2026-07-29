@@ -1,0 +1,1448 @@
+{
+  "@types/aws-lambda": {
+    "current": "8.10.161",
+    "latest": "8.10.162",
+    "wanted": "8.10.161",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/aws-constructs",
+        "location": "/home/alex/repos/solity/packages/aws-constructs"
+      },
+      {
+        "name": "@solity/type-safe-api-handler",
+        "location": "/home/alex/repos/solity/packages/type-safe-api-handler"
+      }
+    ]
+  },
+  "@types/react": {
+    "current": "19.2.15",
+    "latest": "19.2.17",
+    "wanted": "19.2.15",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "@vitejs/plugin-react": {
+    "current": "6.0.2",
+    "latest": "6.0.4",
+    "wanted": "6.0.2",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@vitest/browser-playwright": {
+    "current": "4.1.7",
+    "latest": "4.1.10",
+    "wanted": "4.1.7",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "@vitest/coverage-v8": {
+    "current": "4.1.5",
+    "latest": "4.1.10",
+    "wanted": "4.1.5",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "autoprefixer": {
+    "current": "10.5.0",
+    "latest": "10.5.4",
+    "wanted": "10.5.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "dayjs": {
+    "current": "1.11.20",
+    "latest": "1.11.21",
+    "wanted": "1.11.20",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "dompurify": {
+    "current": "3.4.5",
+    "latest": "3.4.12",
+    "wanted": "3.4.5",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "form-data": {
+    "current": "4.0.5",
+    "latest": "4.0.6",
+    "wanted": "4.0.5",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      }
+    ]
+  },
+  "iso-639-1": {
+    "current": "3.1.5",
+    "latest": "3.1.6",
+    "wanted": "3.1.5",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "p-limit": {
+    "current": "7.3.0",
+    "latest": "7.3.1",
+    "wanted": "7.3.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "postcss": {
+    "current": "8.5.15",
+    "latest": "8.5.23",
+    "wanted": "8.5.15",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "prosemirror-model": {
+    "current": "1.25.7",
+    "latest": "1.25.11",
+    "wanted": "1.25.7",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "qs": {
+    "current": "6.15.2",
+    "latest": "6.15.3",
+    "wanted": "6.15.2",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/type-safe-api-handler",
+        "location": "/home/alex/repos/solity/packages/type-safe-api-handler"
+      }
+    ]
+  },
+  "react": {
+    "current": "19.2.6",
+    "latest": "19.2.8",
+    "wanted": "19.2.6",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "react-dom": {
+    "current": "19.2.6",
+    "latest": "19.2.8",
+    "wanted": "19.2.6",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "react-i18next": {
+    "current": "17.0.8",
+    "latest": "17.0.11",
+    "wanted": "17.0.8",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "styled-components": {
+    "current": "6.4.2",
+    "latest": "6.4.4",
+    "wanted": "6.4.2",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "uuid": {
+    "current": "14.0.0",
+    "latest": "14.0.1",
+    "wanted": "14.0.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "vitest": {
+    "current": "4.1.7",
+    "latest": "4.1.10",
+    "wanted": "4.1.7",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/aws-constructs",
+        "location": "/home/alex/repos/solity/packages/aws-constructs"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      },
+      {
+        "name": "@solity/database",
+        "location": "/home/alex/repos/solity/packages/database"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "@aws-lambda-powertools/logger": {
+    "current": "2.33.1",
+    "latest": "2.34.0",
+    "wanted": "2.33.1",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      }
+    ]
+  },
+  "@faker-js/faker": {
+    "current": "10.4.0",
+    "latest": "10.5.0",
+    "wanted": "10.4.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      }
+    ]
+  },
+  "@googlemaps/places": {
+    "current": "2.4.1",
+    "latest": "2.5.0",
+    "wanted": "2.4.1",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      }
+    ]
+  },
+  "@playwright/test": {
+    "current": "1.60.0",
+    "latest": "1.62.0",
+    "wanted": "1.60.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tabler/icons-react": {
+    "current": "3.44.0",
+    "latest": "3.45.0",
+    "wanted": "3.44.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tanstack/eslint-plugin-query": {
+    "current": "5.100.14",
+    "latest": "5.101.4",
+    "wanted": "5.100.14",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "@tanstack/react-form": {
+    "current": "1.32.0",
+    "latest": "1.33.2",
+    "wanted": "1.32.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tanstack/react-query": {
+    "current": "5.100.14",
+    "latest": "5.101.4",
+    "wanted": "5.100.14",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "@tanstack/react-query-devtools": {
+    "current": "5.100.14",
+    "latest": "5.101.4",
+    "wanted": "5.100.14",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tanstack/react-router": {
+    "current": "1.167.0",
+    "latest": "1.170.18",
+    "wanted": "1.167.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tanstack/react-router-devtools": {
+    "current": "1.166.7",
+    "latest": "1.167.0",
+    "wanted": "1.166.7",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tanstack/router-cli": {
+    "current": "1.166.8",
+    "latest": "1.167.21",
+    "wanted": "1.166.8",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@tanstack/router-plugin": {
+    "current": "1.166.9",
+    "latest": "1.168.23",
+    "wanted": "1.166.9",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@types/google.maps": {
+    "current": "3.64.1",
+    "latest": "3.65.3",
+    "wanted": "3.64.1",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "@vis.gl/react-google-maps": {
+    "current": "1.8.3",
+    "latest": "1.9.0",
+    "wanted": "1.8.3",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "@vitejs/plugin-legacy": {
+    "current": "8.0.2",
+    "latest": "8.2.2",
+    "wanted": "8.0.2",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "aws-amplify": {
+    "current": "6.17.0",
+    "latest": "6.19.0",
+    "wanted": "6.17.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "aws-jwt-verify": {
+    "current": "5.1.1",
+    "latest": "5.2.1",
+    "wanted": "5.1.1",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      }
+    ]
+  },
+  "axios": {
+    "current": "1.16.1",
+    "latest": "1.18.1",
+    "wanted": "1.16.1",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "date-fns": {
+    "current": "4.3.0",
+    "latest": "4.4.0",
+    "wanted": "4.3.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      }
+    ]
+  },
+  "eslint": {
+    "current": "10.4.0",
+    "latest": "10.8.0",
+    "wanted": "10.4.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "eslint-plugin-storybook": {
+    "current": "10.4.1",
+    "latest": "10.5.5",
+    "wanted": "10.4.1",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "globals": {
+    "current": "17.6.0",
+    "latest": "17.8.0",
+    "wanted": "17.6.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "i18next": {
+    "current": "26.2.0",
+    "latest": "26.3.6",
+    "wanted": "26.2.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "mysql2": {
+    "current": "3.22.3",
+    "latest": "3.23.2",
+    "wanted": "3.22.3",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "openai": {
+    "current": "6.39.0",
+    "latest": "6.49.0",
+    "wanted": "6.39.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/aws-constructs",
+        "location": "/home/alex/repos/solity/packages/aws-constructs"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "playwright": {
+    "current": "1.60.0",
+    "latest": "1.62.0",
+    "wanted": "1.60.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "prettier": {
+    "current": "3.8.3",
+    "latest": "3.9.6",
+    "wanted": "3.8.3",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "react-image-crop": {
+    "current": "11.0.10",
+    "latest": "11.1.2",
+    "wanted": "11.0.10",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/database",
+        "location": "/home/alex/repos/solity/packages/database"
+      }
+    ]
+  },
+  "react-intersection-observer": {
+    "current": "10.0.3",
+    "latest": "10.1.0",
+    "wanted": "10.0.3",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "react-window": {
+    "current": "2.2.7",
+    "latest": "2.3.0",
+    "wanted": "2.2.7",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "storybook": {
+    "current": "10.4.1",
+    "latest": "10.5.5",
+    "wanted": "10.4.1",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "tsx": {
+    "current": "4.22.3",
+    "latest": "4.23.1",
+    "wanted": "4.22.3",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "typescript-eslint": {
+    "current": "8.59.4",
+    "latest": "8.65.0",
+    "wanted": "8.59.4",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "undici": {
+    "current": "8.3.0",
+    "latest": "8.9.0",
+    "wanted": "8.3.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "vite": {
+    "current": "8.0.14",
+    "latest": "8.1.5",
+    "wanted": "8.0.14",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@dnd-kit/sortable": {
+    "current": "8.0.0",
+    "latest": "10.0.0",
+    "wanted": "8.0.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@hubspot/api-client": {
+    "current": "13.5.0",
+    "latest": "14.0.1",
+    "wanted": "13.5.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/aws-constructs",
+        "location": "/home/alex/repos/solity/packages/aws-constructs"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "@mantine/carousel": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@mantine/charts": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "@mantine/code-highlight": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "@mantine/core": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "@mantine/dates": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@mantine/dropzone": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@mantine/form": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@mantine/hooks": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      }
+    ]
+  },
+  "@mantine/modals": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@mantine/notifications": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@mantine/tiptap": {
+    "current": "8.3.18",
+    "latest": "9.5.0",
+    "wanted": "8.3.18",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@stripe/react-stripe-js": {
+    "current": "5.6.1",
+    "latest": "6.8.0",
+    "wanted": "5.6.1",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@stripe/stripe-js": {
+    "current": "8.11.0",
+    "latest": "9.12.0",
+    "wanted": "8.11.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "@types/node": {
+    "current": "24.12.4",
+    "latest": "26.1.2",
+    "wanted": "24.12.4",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      },
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/aws-constructs",
+        "location": "/home/alex/repos/solity/packages/aws-constructs"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      },
+      {
+        "name": "@solity/database",
+        "location": "/home/alex/repos/solity/packages/database"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      },
+      {
+        "name": "@solity/type-safe-api-handler",
+        "location": "/home/alex/repos/solity/packages/type-safe-api-handler"
+      }
+    ]
+  },
+  "concurrently": {
+    "current": "9.2.1",
+    "latest": "10.0.4",
+    "wanted": "9.2.1",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "i18next-http-backend": {
+    "current": "3.0.6",
+    "latest": "4.0.0",
+    "wanted": "3.0.6",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "lint-staged": {
+    "current": "16.4.0",
+    "latest": "17.2.0",
+    "wanted": "16.4.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "mantine-contextmenu": {
+    "current": "8.3.13",
+    "latest": "9.4.0",
+    "wanted": "8.3.13",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "mantine-datatable": {
+    "current": "8.3.13",
+    "latest": "9.4.0",
+    "wanted": "8.3.13",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      }
+    ]
+  },
+  "react-avatar-editor": {
+    "current": "14.0.0",
+    "latest": "15.1.0",
+    "wanted": "14.0.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "react-dropzone": {
+    "current": "15.0.0",
+    "latest": "19.1.1",
+    "wanted": "15.0.0",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "sst": {
+    "current": "2.49.6",
+    "latest": "4.17.1",
+    "wanted": "2.49.6",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "stripe": {
+    "current": "20.3.1",
+    "latest": "22.3.2",
+    "wanted": "20.3.1",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      }
+    ]
+  },
+  "tailwindcss": {
+    "current": "3.4.19",
+    "latest": "4.3.3",
+    "wanted": "3.4.19",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      }
+    ]
+  },
+  "typescript": {
+    "current": "6.0.3",
+    "latest": "7.0.2",
+    "wanted": "6.0.3",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      },
+      {
+        "name": "@solity/admin-api",
+        "location": "/home/alex/repos/solity/packages/admin/api"
+      },
+      {
+        "name": "@solity/admin-web",
+        "location": "/home/alex/repos/solity/packages/admin/web"
+      },
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      },
+      {
+        "name": "@solity/app-web",
+        "location": "/home/alex/repos/solity/packages/app/web"
+      },
+      {
+        "name": "@solity/aws-constructs",
+        "location": "/home/alex/repos/solity/packages/aws-constructs"
+      },
+      {
+        "name": "@solity/common-api",
+        "location": "/home/alex/repos/solity/packages/common/api"
+      },
+      {
+        "name": "@solity/common-web",
+        "location": "/home/alex/repos/solity/packages/common/web"
+      },
+      {
+        "name": "@solity/database",
+        "location": "/home/alex/repos/solity/packages/database"
+      },
+      {
+        "name": "@solity/scripts",
+        "location": "/home/alex/repos/solity/packages/scripts"
+      },
+      {
+        "name": "@solity/type-safe-api-handler",
+        "location": "/home/alex/repos/solity/packages/type-safe-api-handler"
+      }
+    ]
+  },
+  "kysely": {
+    "current": "0.28.17",
+    "latest": "0.29.4",
+    "wanted": "0.28.17",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "kysely-codegen": {
+    "current": "0.19.0",
+    "latest": "0.20.0",
+    "wanted": "0.19.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies",
+    "dependentPackages": [
+      {
+        "name": "solity",
+        "location": "/home/alex/repos/solity"
+      }
+    ]
+  },
+  "sharp": {
+    "current": "0.34.5",
+    "latest": "0.35.3",
+    "wanted": "0.34.5",
+    "isDeprecated": false,
+    "dependencyType": "dependencies",
+    "dependentPackages": [
+      {
+        "name": "@solity/app-api",
+        "location": "/home/alex/repos/solity/packages/app/api"
+      }
+    ]
+  }
+}
