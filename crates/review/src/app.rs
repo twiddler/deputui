@@ -6,6 +6,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph, Widget},
 };
 use smol::channel::Sender;
+use tui_markdown;
 
 use crate::async_task::{AsyncTaskRunner, AsyncTaskStatus};
 use crate::multi_select::{MultiSelect, SelectOption};
@@ -160,7 +161,9 @@ impl App {
 ///
 /// tui_markdown::from_str returns a Text that borrows from the input string, which causes lifetime issues when the input is a local variable in a match expression. This function converts the borrowed Text to an owned one by copying all the span content to owned strings. Takes ownership of the input string to avoid lifetime issues.
 fn owned_markdown_text(markdown: String) -> Text<'static> {
-    let markdown_text = tui_markdown::from_str(&markdown);
+    let options = tui_markdown::Options::default()
+        .code_theme(tui_markdown::BuiltinCodeTheme::Base16EightiesDark);
+    let markdown_text = tui_markdown::from_str_with_options(&markdown, &options);
     let owned_lines: Vec<Line> = markdown_text
         .lines
         .iter()
