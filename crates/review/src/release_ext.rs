@@ -17,11 +17,28 @@ impl<'a> ReleaseExt<'a> {
             bail!("Only GitHub repositories are supported for release notes".to_string());
         }
 
-        match GitHubRepo::from_github_url(&self.0.repository_url) {
+        match GitHubRepo::from_url(&self.0.repository_url) {
             Ok(github_repo) => match github_repo.fetch_release_by_version(&self.0.semver).await {
                 Ok(release) => Ok(release.body.unwrap_or("Empty release notes".into())),
                 Err(e) => Err(anyhow!("Failed to fetch release notes: {}", e)),
             },
+            Err(_) => {
+                panic!("Invalid GitHub URL; this should have been caught earlier")
+            }
+        }
+    }
+
+    pub fn get_release_url(&self) -> Result<String> {
+        if Url::parse(&self.0.repository_url).is_err() {
+            bail!("Invalid repository URL".to_string());
+        }
+
+        if !is_github_url(&self.0.repository_url) {
+            bail!("Only GitHub repositories are supported for release notes".to_string());
+        }
+
+        match GitHubRepo::from_url(&self.0.repository_url) {
+            Ok(github_repo) => Ok(github_repo.get_release_url(&self.0.semver)),
             Err(_) => {
                 panic!("Invalid GitHub URL; this should have been caught earlier")
             }

@@ -14,7 +14,7 @@ pub struct GitHubRepo {
 }
 
 impl GitHubRepo {
-    pub fn from_github_url(url_str: &str) -> Result<GitHubRepo> {
+    pub fn from_url(url_str: &str) -> Result<GitHubRepo> {
         let url = Url::parse(url_str)?;
 
         if url.host_str() != Some("github.com") {
@@ -46,7 +46,7 @@ impl GitHubRepo {
 
     pub async fn fetch_release(&self, tag: &str) -> Result<GitHubRelease> {
         let url = format!(
-            "https://api.github.com/repos/{}/{}/releases/tags/{}",
+            "https://api.github.com/repos/{}/{}/releases/tags/v{}",
             self.owner, self.repo, tag
         );
 
@@ -70,6 +70,13 @@ impl GitHubRepo {
 
         serde_json::from_str(&response_text)
             .map_err(|e| anyhow!("Failed to parse GitHub API response: {}", e))
+    }
+
+    pub fn get_release_url(&self, tag: &str) -> String {
+        format!(
+            "https://github.com/{}/{}/releases/tag/v{}", // Experimental: Always prepends "v", so this will work with many, but not all releases. For now this is better than not having this feature at all.
+            self.owner, self.repo, tag
+        )
     }
 
     pub async fn fetch_release_by_version(&self, version: &str) -> Result<GitHubRelease> {
@@ -97,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_parse_valid_github_urls() {
-        let repo = GitHubRepo::from_github_url("https://github.com/rust-lang/rust.git").unwrap();
+        let repo = GitHubRepo::from_url("https://github.com/rust-lang/rust.git").unwrap();
         assert_eq!(repo.owner, "rust-lang");
         assert_eq!(repo.repo, "rust");
     }
@@ -116,7 +123,7 @@ mod tests {
 
         for url in invalid_cases {
             assert!(
-                GitHubRepo::from_github_url(url).is_err(),
+                GitHubRepo::from_url(url).is_err(),
                 "Should fail for URL: {}",
                 url
             );

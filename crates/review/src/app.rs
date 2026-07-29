@@ -101,6 +101,7 @@ impl App {
                 KeyCode::Char('h') => self.focus_pane(Pane::Releases),
                 KeyCode::Char('k') => self.scroll_up(),
                 KeyCode::Char('j') => self.scroll_down(),
+                KeyCode::Char('o') => self.open_release_in_web_browser(),
                 _ => {}
             },
         }
@@ -111,6 +112,23 @@ impl App {
 
         self.release_notes_runner
             .start_operation(async move { ReleaseExt(&release).fetch_release_notes().await });
+    }
+
+    pub fn open_release_in_web_browser(&mut self) {
+        match ReleaseExt(self.multiselect.focused_value()).get_release_url() {
+            Ok(url) => {
+                if let Err(err) = open::that_detached(&url) {
+                    eprintln!("An error occurred when opening '{}': {}", url, err);
+                }
+            }
+            Err(err) => {
+                let report_url = format!("https://github.com/twiddler/deputui/issues/new?title=Error when getting URL of release notes&body={}", err);
+
+                if let Err(err2) = open::that_detached(&report_url) {
+                    eprintln!("An error occurred when opening '{}': {}", report_url, err2);
+                }
+            }
+        }
     }
 
     pub fn scroll_up(&mut self) {
@@ -209,7 +227,7 @@ fn get_keys_hints(pane: &Pane) -> &'static str {
         Pane::Releases => {
             "down: j | up: k | focus release notes: l | toggle: ␣ | confirm: ⏎ | abort: ctrl+c | +: grow | -: shrink"
         }
-        Pane::ReleaseNotes => "down: j | up: k | focus releases: h | abort: ctrl+c",
+        Pane::ReleaseNotes => "down: j | up: k | focus releases: h | open in browser: o (experimental) | abort: ctrl+c",
     }
 }
 
